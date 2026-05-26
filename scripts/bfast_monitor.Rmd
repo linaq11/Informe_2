@@ -1,0 +1,144 @@
+---
+title: "BFAST Monitor sobre series VH banda C en CGSM"
+subtitle: "Implementación canónica del Anexo H — Informe 2"
+author: "Lina Quintero"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      fig.width = 9, fig.height = 5)
+```
+
+## Contexto
+
+Reproducción del análisis del Anexo H del Informe 2 utilizando el paquete
+canónico `bfast` de R (Verbesselt et al. 2010, 2012) en lugar de la
+implementación pragmática Python (`bfast_monitor.py`). La versión R incorpora
+selección automática del período histórico estable y reestimación recursiva
+del modelo armónico-estacional, ambas simplificadas en la versión Python por
+razones de portabilidad. Los resultados se contrastan con la Tabla 1 del
+cuerpo del informe para validación cruzada metodológica.
+
+## Dependencias
+
+```{r libraries}
+library(bfast)
+library(zoo)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+
+## Carga de series mensuales VH
+
+Las series mensuales agregadas sobre buffer 150 m de las cinco estaciones
+permanentes CARICOMP se cargan desde el CSV exportado por el script
+`CGSM_Export_Series_GEE.js`.
+
+```{r load}
+df <- read.csv("../ESTACIONES R/CGSM_VH_mensual_estaciones.csv",
+               stringsAsFactors = FALSE)
+df$date <- as.Date(paste0(df$date, "-01"))
+df <- df[order(df$nombre, df$date), ]
+
+estaciones <- unique(df$nombre)
+cat("Estaciones:", paste(estaciones, collapse = ", "), "\n")
+cat("Ventana temporal:", format(min(df$date)), "a", format(max(df$date)), "\n")
+```
+
+## BFAST Monitor por estación
+
+Se aplica `bfastmonitor()` con período histórico estable definido como
+2020-2021 (`history = c(2020, 1)` hasta el inicio del período de monitoreo
+en enero de 2022) y nivel de significancia α = 0.05. El modelo armónico es
+de orden 2 sobre el ciclo anual.
+
+```{r monitor, results='asis'}
+resultados <- data.frame(
+  estacion = character(),
+  primera_alerta = as.Date(character()),
+  anho_decimal = numeric(),
+  magnitud = numeric(),
+  history_start = as.Date(character()),
+  stringsAsFactors = FALSE
+)
+
+for (est in estaciones) {
+  sub <- df[df$nombre == est, ]
+  ts_vh <- ts(sub$mean, start = c(2020, 1), frequency = 12)
+
+  monitor <- bfastmonitor(
+    data = ts_vh,
+    start = c(2022, 1),
+    formula = response ~ harmon,
+    order = 2,
+    history = c(2020, 1),
+    level = 0.05
+  )
+
+  bp <- monitor$breakpoint
+  if (!is.na(bp)) {
+    fecha_alerta <- as.Date(paste0(floor(bp), "-",
+                                    sprintf("%02d", round((bp - floor(bp)) * 12) + 1),
+                                    "-01"))
+    resultados <- rbind(resultados, data.frame(
+      estacion = est,
+      primera_alerta = fecha_alerta,
+      anho_decimal = round(bp, 3),
+      magnitud = round(monitor$magnitude, 2),
+      history_start = as.Date(paste0(floor(monitor$history[1]), "-01-01"))
+    ))
+  } else {
+    resultados <- rbind(resultados, data.frame(
+      estacion = est,
+      primera_alerta = NA,
+      anho_decimal = NA,
+      magnitud = round(monitor$magnitude, 2),
+      history_start = as.Date(paste0(floor(monitor$history[1]), "-01-01"))
+    ))
+  }
+
+  # Gráfico por estación
+  cat("###", est, "\n\n")
+  plot(monitor, main = paste("BFAST Monitor VH —", est))
+  cat("\n\n")
+}
+
+knitr::kable(resultados, caption = "Resultados BFAST Monitor por estación")
+```
+
+## Comparación con la Tabla 1 del cuerpo del informe
+
+La Tabla 1 del cuerpo (sección 3.1) reportada con la implementación Python
+arrojó las siguientes primeras alertas:
+
+| Estación     | Python (`bfast_monitor.py`) | R (este cuaderno) |
+|--------------|-----------------------------|-------------------|
+| Km22         | Jul 2022 (MOSUM 3.71)       | (ver tabla anterior) |
+| Luna         | Nov 2022 (MOSUM 19.43)      | (ver tabla anterior) |
+| Aguas Negras | Dic 2022 (MOSUM 10.58)      | (ver tabla anterior) |
+| Caño Grande  | Dic 2022 (MOSUM 13.59)      | (ver tabla anterior) |
+| Rinconada    | May 2023 (MOSUM 8.88)       | (ver tabla anterior) |
+
+La concordancia cualitativa entre ambas implementaciones (ordenamiento
+temporal y rango de magnitudes) constituye la validación cruzada que el
+Anexo H plantea como continuación natural.
+
+## Exportación de resultados
+
+```{r export}
+write.csv(resultados,
+          file = "../data_anexoH/tabla_monitor_R.csv",
+          row.names = FALSE)
+cat("Resultados guardados en data_anexoH/tabla_monitor_R.csv\n")
+```
+
+## Referencias
+
+- Verbesselt, J., Hyndman, R., Newnham, G. & Culvenor, D. (2010). Detecting
+  trend and seasonal changes in satellite image time series. *Remote Sensing
+  of Environment*, 114(1), 106-115.
+- Verbesselt, J., Zeileis, A. & Herold, M. (2012). Near real-time disturbance
+  detection using satellite image time series. *Remote Sensing of
+  Environment*, 123, 98-108.

@@ -1,0 +1,16 @@
+{
+  "n_training": 564,
+  "training_dist": {
+    "0": 121,
+    "1": 220,
+    "2": 100,
+    "3": 123
+  },
+  "n_parcels": 15,
+  "concord_rf": "3/15 = 20.0%",
+  "concord_gp": "0/15 = 0.0%",
+  "kappa_rf": -0.2245,
+  "kappa_gp": -0.3889,
+  "regular_predictions_rf": 5,
+  "regular_predictions_gp": 0
+}

@@ -1,0 +1,7 @@
+﻿*.tif
+*.tiff
+*.bak
+*.docx#
+__pycache__/
+.ipynb_checkpoints/
+aoa_input/

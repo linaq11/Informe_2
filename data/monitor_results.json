@@ -1,0 +1,32 @@
+{
+  "Aguas_Negras": {
+    "first_alert_date": "2022-12",
+    "first_alert_year_dec": 2022.917,
+    "max_mosum": 10.58,
+    "n_alerts": 13
+  },
+  "Cano_Grande": {
+    "first_alert_date": "2022-12",
+    "first_alert_year_dec": 2022.917,
+    "max_mosum": 13.59,
+    "n_alerts": 12
+  },
+  "Km22": {
+    "first_alert_date": "2022-07",
+    "first_alert_year_dec": 2022.5,
+    "max_mosum": 3.71,
+    "n_alerts": 5
+  },
+  "Luna": {
+    "first_alert_date": "2022-11",
+    "first_alert_year_dec": 2022.833,
+    "max_mosum": 19.43,
+    "n_alerts": 14
+  },
+  "Rinconada": {
+    "first_alert_date": "2023-05",
+    "first_alert_year_dec": 2023.333,
+    "max_mosum": 8.88,
+    "n_alerts": 8
+  }
+}
