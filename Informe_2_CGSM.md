@@ -1,8 +1,8 @@
 Universidad Nacional de Colombia
 
-Facultad de Ciencias Agrarias, Maestría en Geomática
+Facultad de Ciencias AgrariasFacultad de Ciencias Agrarias, Maestría en Geomática
 
-Percepción Remota, Informe 2
+Percepción RemotaPercepción Remota, Informe 2
 
 Lina María Quintero Fonseca
 
@@ -65,7 +65,7 @@ El Anexo J examina si la limitación documentada en las cuatro pruebas anteriore
 | 3 clases, Regular reagrupado con Degradado | Random Forest | 5/15 = 33.3 % | −0.389 |
 | 3 clases, Regular reagrupado con Degradado | GPBoost OvR | 3/15 = 20.0 % | −0.667 |
 
-Las Tablas 1 y 2 muestran dos rasgos del manglar de la CGSM que las cinco pruebas anteriores no logran resolver con SAR banda C. El primero es su bimodalidad estructural. Al aplicar el filtro Hansen Global Forest Change v1.12 (Hansen et al. 2013) sobre el manglar canónico de Giri (Giri et al. 2011), el bosque aparece en cobertura densa superior al 80 % o en cobertura baja inferior al 40 %, sin valores intermedios detectables; la clase Regular no produce candidatos ni siquiera con 50 000 puntos aleatorios sobre el AOI (Anexo J). El segundo es el aporte nulo del SAR banda C al clasificador de fusión: la importancia agregada del SAR es igual a cero tanto en Random Forest como en GPBoost (Anexos I y J), de modo que la fusión óptico-SAR del componente A se reduce, sobre las muestras del reentrenamiento, a una fusión óptica.
+Las Tablas 1 y 2 muestran dos rasgos del manglar de la CGSM que las cinco pruebas anteriores no logran resolver con SAR banda C. El primero es su bimodalidad estructural. Al aplicar el filtro Hansen Global Forest Change v1.12 (Hansen et al. 2013) sobre el mapa de distribución global de manglar de Giri et al. (2011), el bosque aparece en cobertura densa superior al 80 % o en cobertura baja inferior al 40 %, sin valores intermedios detectables; la clase Regular no produce candidatos ni siquiera con 50 000 puntos aleatorios sobre el AOI (Anexo J). El segundo es el aporte nulo del SAR banda C al clasificador de fusión: la importancia agregada del SAR es igual a cero tanto en Random Forest como en GPBoost (Anexos I y J), de modo que la fusión óptico-SAR del componente A se reduce, sobre las muestras del reentrenamiento, a una fusión óptica.
 
 ### 1.3 Pregunta de investigación
 

@@ -163,29 +163,29 @@
     <span class="tag bad">Luna AB ↓67% 2015-17</span><span class="tag bad">Km22 densidad ↓92% 2015-18</span><span class="tag ok">Mejora neta +443 km² 2020-23</span><span class="tag">Insumo Digital Twin tesis</span>
   </div>
 
-  <h3>Estructura de carpetas</h3>
-  <div class="flow">PERCEPCION REMOTA/
-├── Quintero_Informe1.docx/.pdf       ← Informe 1 entregable
-├── Quintero_Recuperacion1.pdf
-├── Correcciones_Informe1.md          ← respuesta evaluador (acc 98.5%)
-├── Informe_2/                        ← Informe 2 trabajo
-│   ├── AOI/                          ← geojson (CGSM 5053km², Pajarales Ma16, SFF)
-│   ├── scripts/                      ← 16 scripts GEE JS
-│   ├── csvs/                         ← validación SAR + S2 4clases
-│   ├── figuras/                      ← outputs visuales
-│   ├── Analisis_CSV_SAR_Validacion.ipynb
-│   ├── CARICOMP_*.csv (3 archivos)   ← AB y densidad procesadas
-│   ├── CGSM_Fusion_thumbnail_2020-2023.tif
-│   ├── ICAM xlsx + REDCAM 2021/22/23 PDFs
-│   └── Informe_2_CGSM.pdf
-├── AGB_RF_GEE_CGSM/                  ← ejercicio biomasa (3 iter)
-├── RF_spatial_proxies/               ← réplica Milà et al. 2024
-├── carlesmila-RF-spatial-proxies/    ← repo original
-├── ARTICULOS/ + LECTURAS/            ← bibliografía
-├── dwca-caricomp-manglares/          ← DwC-A 29 651 reg 1995-2021
-├── dwca-invemar_estructura_manglar/
-├── SHP CGAM/, GEE/, CGSM/, ESTACIONES R/
-└── writing/                          ← Avances y reseñas</div>
+  <h3>Estructura del repositorio público</h3>
+  <p class="lead" style="font-size:13px">Disponible en <a href="https://github.com/linaq11/Informe_2" target="_blank">github.com/linaq11/Informe_2</a> bajo licencia MIT. Esta es la estructura del repo que el evaluador puede clonar o explorar directamente.</p>
+  <div class="flow">Informe_2/
+├── Informe_2_CGSM.docx / .md                 ← documento principal del Informe 2
+├── Informe_2_CGSM_Anexos.docx / .md          ← anexos A-L (material reproducible)
+├── README.md                                 ← portada con badge al dashboard
+├── dashboard-percepcion-remota.html          ← este dashboard interactivo
+├── scripts/                                  ← 28 archivos GEE JS + Python + R
+│   ├── 17 GEE JS                             ← CGSM_*.js · Export_*.js
+│   ├── bfast_monitor.Rmd                     ← R · Verbesselt et al. 2012
+│   ├── bfast_monitor.py · bfast_bootstrap.py ← Anexo H + Tabla 5
+│   ├── compute_aoa.py · plot_aoa.py          ← Anexo I (AoA, 63.2 % fuera)
+│   ├── run_gpboost.py · compute_gpboost.py   ← Anexo J (RF vs GPBoost)
+│   ├── crosstab_aoa_class.py
+│   └── plot_breakpoints_VH.py                ← genera Fig 1 (series VH + BP)
+├── data/                                     ← outputs reproducibles
+│   ├── tabla_monitor_R.csv · tabla_bootstrap.csv  ← Tablas 1 y 2
+│   ├── monitor_results.json · bootstrap_results.json
+│   ├── aoa_parcels_di.csv · aoa_thresholds.json   ← Anexo I
+│   ├── gpboost_*.csv / .json                       ← Anexo J
+│   └── CGSM_Fusion_18_23_parcelas_*.csv (6 años)
+└── figuras/                                  ← 17 PNGs (Fig 0-11 + auxiliares)</div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">Las series temporales VH agregadas por estación (<code>ESTACIONES R/CGSM_VH_mensual_estaciones.csv</code>), los rasters intermedios mayores a 50 MB y el material de exploración no esencial viven solo en el entorno local de trabajo; son reproducibles ejecutando los scripts GEE incluidos en el repo.</p>
 </section>
 
 <!-- ════════════════ FLOW ════════════════ -->
@@ -303,34 +303,34 @@
   <!-- ── INFORME 2 ── -->
   <div class="pipe" id="pipe-i2">
     <div class="pipe-banner">
-      <b>Limitaciones del Informe 1 que motivan el Informe 2:</b><br>
-      ① Validación únicamente espectral (sin estructura forestal de campo)<br>
-      ② Temporada lluviosa (abr-nov) no cubierta — saturación de nubes en S2
+      <b>Reformulación del Informe 2:</b><br>
+      ① La fusión óptico-SAR del componente A no resuelve el estado estructural del manglar (5 pruebas convergentes).<br>
+      ② El informe cambia la pregunta: de "qué estado tiene" a "cuándo ocurrió un cambio" (BFAST Monitor sobre VH banda C).
     </div>
 
-    <div class="pipe-section-title" style="border-color:var(--i2);color:var(--i2)">Componente A · SAR temporada lluviosa</div>
+    <div class="pipe-section-title" style="border-color:var(--i2);color:var(--i2)">Componente A · Crítica del clasificador estático (5 pruebas convergentes)</div>
     <div class="pipe-row">
-      <div class="node i2" data-title="Sentinel-1 GRD" data-meta="COPERNICUS/S1_GRD · IW · VV+VH" data-body="Órbita ascendente. <b>Temporada lluviosa abr-nov</b> de cada año 2020-2023. Penetra nubes — único sensor viable para esta ventana ciega del óptico."><span class="node-num">1</span><div class="node-title">Sentinel-1 GRD</div><div class="node-sub">VV+VH lluviosa</div></div>
-      <div class="node i2" data-title="Composite VV/VH" data-meta="median() · Lee 5×5 implícito" data-body="Reducción mediana por año-temporada. Filtrado de speckle implícito en GRD pre-procesado por ESA."><span class="node-num">2</span><div class="node-title">Composite SAR</div><div class="node-sub">VV+VH median</div></div>
-      <div class="node i2" data-title="RF SAR estática · 4 versiones iterativas" data-meta="CGSM_SAR_Lluviosa_Clasificacion_v1..v4.js" data-body="Reentrenamiento con 4 clases (No-manglar/Degradado/Regular/Intacto). Iteración v1→v4 buscando mejorar separabilidad SAR.<br><br><b>Resultado:</b> acc ~30%, Kappa ≈ 0 negativo en cinco configuraciones probadas. La banda C falla como descriptor estático del estado del dosel."><span class="node-num">3</span><div class="node-title">RF SAR estática</div><div class="node-sub">4 clases · v1-v4</div><span class="node-tag bad">acc ~30% · falla</span></div>
-      <div class="node i2" data-title="Plan B · BFAST en series VH" data-meta="CGSM_BFAST_Analysis.R · series mensuales 2020-2023" data-body="Análisis de <b>breakpoints</b> en R sobre series mensuales VH banda C, en 5 estaciones INVEMAR con buffers 150 m.<br><br><b>Hallazgo central:</b> breakpoints sincrónicos <b>Feb-May 2022</b> en 4/5 estaciones (Aguas Negras + Luna + 2 más). Anteceden la pérdida de cobertura registrada por la clasificación óptica del Informe 1 entre 2022 y 2023."><span class="node-num">4</span><div class="node-title">BFAST series VH</div><div class="node-sub">5 estaciones</div><span class="node-tag ok">breakpoints Feb-May 2022</span></div>
+      <div class="node i2" data-title="Anexo E · Sensibilidad a la unidad de validación" data-meta="15 parcelas DwC-A INVEMAR exactas (n = 90)" data-body="Reentrenamiento del RF con 15 parcelas individuales del Darwin Core Archive (Beltrán et al. 2022) en lugar de 5 estaciones reubicadas.<br><br><b>Resultado:</b> concordancia 22.4 %, <b>Kappa = -0.137 [IC95 -0.234, -0.049]</b>. La clase Regular nunca es asignada por el clasificador pese a estar en las 100 muestras de entrenamiento. RIN-1 se clasifica sistemáticamente como Degradado mientras RIN-2 y RIN-3 como Intacto."><span class="node-num">1</span><div class="node-title">Anexo E · sensibilidad</div><div class="node-sub">15 parcelas · n = 90</div><span class="node-tag bad">Kappa = -0.137</span></div>
+      <div class="node i2" data-title="Anexo F · Autocorrelación espacial de residuales" data-meta="Moran I global + variograma esférico sobre residuales ordinales" data-body="Diagnóstico aplicado a las 15 parcelas DwC-A, agregadas por concordancia media y residual ordinal medio.<br><br><b>Resultado:</b> <b>Moran I = 0.351, p = 0.010, z = 2.606</b>. Variograma esférico con rango ≈ 8 187 m (coincide con la separación inter-estación), meseta 1.40, nugget nulo. Los errores se distribuyen como conglomerados espaciales, no como ruido aleatorio. Supuesto de independencia violado."><span class="node-num">2</span><div class="node-title">Anexo F · Moran I</div><div class="node-sub">autocorrelación residual</div><span class="node-tag bad">Moran I = 0.351</span></div>
+      <div class="node i2" data-title="Anexo G · Sensibilidad a percentiles BA" data-meta="4 esquemas: P25/P75, P33/P66, Komiyama 30/80, P40/P60" data-body="Recalculo de la concordancia bajo 4 esquemas de umbralización del área basal, con bootstrap de 1 000 iteraciones para el coeficiente Kappa.<br><br><b>Resultado:</b> concordancia oscila entre <b>40 % y 50 %</b>, Kappa entre +0.05 y +0.18, y el <b>IC95 incluye cero en los 4 esquemas</b>. La conclusión sobre la limitación física es invariante a la elección de umbrales razonable."><span class="node-num">3</span><div class="node-title">Anexo G · percentiles BA</div><div class="node-sub">4 esquemas</div><span class="node-tag bad">IC95 incluye 0</span></div>
+      <div class="node i2" data-title="Anexo I · Area of Applicability (Meyer & Pebesma 2021)" data-meta="Stack 18 bandas S2 dry + S1 wet 2023 · 471 muestras" data-body="Cálculo del AoA sobre el AOI CGSM siguiendo Meyer & Pebesma (2021), con stack de 18 bandas reconstruido por GEE.<br><br><b>Resultado:</b> <b>63.2 % del AOI fuera</b> del envoltorio multivariado de entrenamiento (umbral DI = 0.123). Las 4 bandas SAR Sentinel-1 (VV, VH, VV-VH, VH/VV) tienen importancia agregada igual a cero. La fusión óptico-SAR es, en la práctica, fusión puramente óptica."><span class="node-num">4</span><div class="node-title">Anexo I · AoA</div><div class="node-sub">63.2 % AOI fuera</div><span class="node-tag bad">SAR importancia = 0</span></div>
+      <div class="node i2" data-title="Anexo J · Comparación RF vs GPBoost con proceso gaussiano" data-meta="564 muestras · GPBoost OvR con kernel exponencial sobre coordenadas UTM" data-body="Sustitución del RF por un GPBoost (Sigrist 2020, 2021) que modela la autocorrelación espacial residual de forma explícita mediante proceso gaussiano sobre las coordenadas.<br><br><b>Resultado:</b> RF Kappa = -0.224 (3/15), GPBoost OvR Kappa = -0.389 (0/15). El cambio de algoritmo empeora el desempeño. La <b>bimodalidad estructural</b> del manglar de la CGSM queda confirmada por Hansen GFC (cero candidatos Regular en 50 000 puntos aleatorios)."><span class="node-num">5</span><div class="node-title">Anexo J · RF vs GPBoost</div><div class="node-sub">564 muestras · 15 parcelas</div><span class="node-tag bad">algoritmo no rescata</span></div>
     </div>
 
-    <div class="pipe-section-title" style="border-color:var(--i2);color:var(--i2)">Componente B · Validación CARICOMP in-situ</div>
+    <div class="pipe-converge">↓ Las 5 pruebas convergen en la reformulación hacia detección de cambio ↓</div>
+
+    <div class="pipe-section-title" style="border-color:var(--i2);color:var(--i2)">Componente B · BFAST Monitor (R, Verbesselt et al. 2012) · eje principal</div>
     <div class="pipe-row">
-      <div class="node i2" data-title="DwC-A CARICOMP" data-meta="dwca-caricomp-manglares · 1995-2021" data-body="<b>29 651 registros</b> Darwin Core Archive público (Beltrán et al. 2022; Espinosa Díaz et al. 2023). Cinco estaciones permanentes en CGSM con serie 26 años: <b>Rinconada, Aguas Negras, Caño Grande, Luna, Km22</b>."><span class="node-num">1</span><div class="node-title">DwC-A CARICOMP</div><div class="node-sub">29 651 reg · 1995-2021</div></div>
-      <div class="node i2" data-title="Procesamiento AB y densidad" data-meta="proceso_caricomp.py" data-body="Procesa registros DwC-A en tablas:<br>• <code>CARICOMP_estacion_anio.csv</code> — área basal (BA m²/ha) y densidad (ind/ha)<br>• <code>CARICOMP_estacion_anio_especie.csv</code> — desglose por especie (input para IVI)<br><br><b>Hallazgos clave del flanco occidental:</b><br>• <b>Luna:</b> AB ↓67% entre 2015-2017<br>• <b>Km22:</b> densidad ↓92% entre 2015-2018<br><br>Ambos eventos in-situ <b>anteceden y predicen</b> la pérdida óptica registrada en el Informe 1 entre 2022-2023."><span class="node-num">2</span><div class="node-title">AB · densidad · IVI</div><div class="node-sub">por estación-año</div><span class="node-tag bad">colapso Luna+Km22</span></div>
-      <div class="node i2" data-title="Buffers 150m INVEMAR" data-meta="CGSM_Extraccion_Estaciones_Buffer150m_v1..v3.js" data-body="Buffers de 150 m de radio alrededor de cada estación INVEMAR — captura ~7×7 píxeles S2 a 10 m. Suficiente para promediar ruido sin diluir representatividad espacial de la parcela CARICOMP (~10×10 m).<br><br>Output: píxeles S2 4-clases por estación-año (<code>CGSM_S2_4clases_estaciones_*.csv</code>)."><span class="node-num">3</span><div class="node-title">Buffers 150m</div><div class="node-sub">extracción S2</div></div>
+      <div class="node i2" data-title="Series mensuales VH agregadas" data-meta="Sentinel-1 GRD · IW · VH · órbita DESCENDING · buffer 150 m × 5 estaciones" data-body="Preprocesamiento sobre las cinco estaciones permanentes CARICOMP: filtro de speckle por mediana focal 3×3, máscara de bordes VV < -30 dB, agregación temporal por mediana mensual.<br><br><b>Output:</b> 48 observaciones por estación (Ene 2020 - Dic 2023). Longitud suficiente para ajustar el modelo armónico de segundo orden de BFAST Monitor sobre el bienio histórico y mantener cobertura completa del bienio de monitoreo."><span class="node-num">1</span><div class="node-title">Series VH mensuales</div><div class="node-sub">5 estaciones · 48 obs c/u</div></div>
+      <div class="node i2" data-title="BFAST Monitor R (Verbesselt et al. 2012)" data-meta="bfast::bfastmonitor · history = c(2020,1) · start = c(2022,1) · order = 2 · α = 0.05" data-body="Aplicación de la función bfastmonitor del paquete bfast en R con período histórico estable 2020-2021 y período de monitoreo iniciando en enero 2022. Modelo armónico de segundo orden sobre el ciclo anual. Estadístico OLS-MOSUM acumulado sobre los residuales del modelo histórico.<br><br><b>Resultado:</b> breakpoints significativos en las 5 estaciones entre <b>Abr 2022 y Oct 2023</b>. Magnitudes 0.35-1.73 dB. ANE Abr 22 (1.73) → LUN+RIN May 22 → KM22 Ago 22 → CGE Oct 23."><span class="node-num">2</span><div class="node-title">BFAST Monitor R</div><div class="node-sub">α = 0.05 · orden 2</div><span class="node-tag ok">5/5 estaciones</span></div>
+      <div class="node i2" data-title="Bootstrap CI95 sobre breakpoints" data-meta="bfast_bootstrap.py · 300 iteraciones · resampleo residuales · PELT + BIC" data-body="Bootstrap de 300 iteraciones sobre los residuales del componente armónico-estacional (Verbesselt et al. 2010). Ajuste del modelo armónico sobre la serie completa, resampleo con reposición, suma al ajuste original, detección de breakpoint sobre cada réplica.<br><br><b>Resultado:</b> presencia del breakpoint robusta en 4/5 estaciones (P_no_BP entre 0.000 y 0.080 en ANE, KM22, LUN, RIN). Solo marginal en CGE (0.930). La fecha exacta es inestable (amplitudes IC95 18-31 meses) pero la existencia del cambio es sólida."><span class="node-num">3</span><div class="node-title">Bootstrap CI95</div><div class="node-sub">300 iteraciones</div><span class="node-tag ok">robusto en 4/5</span></div>
     </div>
 
-    <div class="pipe-converge">↓ Componentes A y B convergen en la Fusión ↓</div>
-
-    <div class="pipe-section-title" style="border-color:var(--i2);color:var(--i2)">Componente C · Fusión multisensor S2 ⨁ S1</div>
+    <div class="pipe-section-title" style="border-color:var(--i2);color:var(--i2)">Componente C · Validación tiempo de detección vs INVEMAR ITF 2023</div>
     <div class="pipe-row">
-      <div class="node i2" data-title="Fusión S2 (seca) ⨁ S1 (lluviosa)" data-meta="CGSM_Fusion_S2_S1_4clases.js" data-body="Combinación lógica de la clasificación S2 seca con S1 lluviosa.<br><br>La cuarta clase (<i>Regular</i>) emerge naturalmente del cruce — corresponde a manglar inundable estacionalmente, información ecológica que ningún sensor solo puede capturar."><span class="node-num">1</span><div class="node-title">Fusión S2⨁S1</div><div class="node-sub">4 clases derivadas</div></div>
-      <div class="node i2" data-title="Análisis derivado" data-meta="CGSM_Fusion_4clases_Analisis_Derivado.js" data-body="<b>Outputs cuantitativos:</b><br>• <code>CGSM_Fusion_areas_clase_anio.csv</code> — áreas por clase × año (CGSM completo)<br>• <code>CGSM_Fusion_areas_Pajarales.csv</code> — sub-AOI focal<br>• <code>CGSM_Fusion_cambio_2020_2023.csv</code> — matriz de cambio<br>• <code>CGSM_Fusion_thumbnail_2020-2023.tif</code> — 4 thumbnails anuales<br><br><b>Cambio neto 2020-2023:</b> mejora 1 180 km² · degradación 737 km² · sin cambio 4 376 km² (71.5%)."><span class="node-num">2</span><div class="node-title">Áreas + cambio</div><div class="node-sub">CSVs + TIFs</div></div>
-      <div class="node i2" data-title="Comparación óptico ↔ SAR" data-meta="CGSM_Comparacion_Optico_SAR.js + Analisis_CSV_SAR_Validacion.ipynb" data-body="Mapas de concordancia/discordancia entre clasificación S2-seca y S1-lluviosa + métricas de acuerdo + interpretación dual.<br><br>Cruce con <code>Indicador_serie_historica_ICAM.xlsx</code> (calidad agua INVEMAR) y los Informes <b>REDCAM 2021/2022/2023</b> para contexto interpretativo de los breakpoints SAR."><span class="node-num">3</span><div class="node-title">Concordancia</div><div class="node-sub">+ ICAM + REDCAM</div></div>
-      <div class="node i2" data-title="Output · Insumo Digital Twin" data-meta="Tesis Maestría Geomática" data-body="<b>Resultados cuantitativos 2020-2023 (CGSM completo):</b><br>• Mejora neta: <b>+443 km²</b><br>• Mejora total: 1 180 km²<br>• Degradación: 737 km²<br>• Sin cambio: 4 376 km² (71.5%)<br><br><b>Recomendación:</b> insumo para el componente de <b>alerta temprana</b> del Digital Twin propuesto como tesis. La fusión multisensor mejora la robustez del monitoreo y captura cambios estructurales (BFAST) que el snapshot estático no detecta."><span class="node-num">4</span><div class="node-title">Output Digital Twin</div><div class="node-sub">+443 km² neto</div><span class="node-tag ok">tesis</span></div>
+      <div class="node i2" data-title="Cruce primera alerta × evento documentado" data-meta="CARICOMP 1995-2021 + INVEMAR ITF 2023 (Ibarra et al. 2014; INVEMAR 2024)" data-body="Métrica de validación: <b>tiempo de detección</b> = diferencia en meses entre la fecha del evento documentado por campo y la fecha del primer breakpoint del modelo. Tiempos negativos indican detección anticipada del modelo respecto al reporte INVEMAR.<br><br>Sustituye el Kappa de Cohen sobre clase estructural (que daba -0.137 en componente A) por una métrica directa de utilidad operativa para gestores."><span class="node-num">1</span><div class="node-title">Tiempo de detección</div><div class="node-sub">métrica de validación</div></div>
+      <div class="node i2" data-title="Caso Aguas Negras (validación principal)" data-meta="Evento INVEMAR: pérdida 33 % arbolado Oct 2022 - Sep 2023" data-body="El reporte INVEMAR ITF 2023 documenta una pérdida del 33 % del arbolado en Aguas Negras durante octubre 2022 a septiembre 2023.<br><br><b>Primera alerta BFAST: Abr 2022 (1.73 dB, magnitud máxima del conjunto).</b> Detección <b>6 meses ANTES</b> del inicio del período cuantificado por el reporte de campo. El SAR Sentinel-1 detectó el cambio antes que la cadena de monitoreo CARICOMP. Justo el caso de uso que un sistema de alerta temprana debe resolver."><span class="node-num">2</span><div class="node-title">Aguas Negras</div><div class="node-sub">6 meses antes INVEMAR</div><span class="node-tag ok">alerta temprana validada</span></div>
+      <div class="node i2" data-title="Anexo D · Continuación banda L (AGB exploratorio)" data-meta="14 parcelas DwC-A · AGB allométrico Komiyama (2005) · Spearman univariada" data-body="Iteración 3 con AGB allométrico INVEMAR sobre 14 parcelas estructurales.<br><br><b>Resultado:</b> HV banda L ρ = 0.024 (n.s.), VH banda C ρ = 0.226 (n.s.). El predictor más fuerte es la <b>pendiente del DEM ρ = 0.78, p &lt; 0.001</b> — proxy del régimen hidrológico. Biomasa CGSM ~50 Mg/Ha está bajo el rango óptimo SAR. Replicación rigurosa con escenas WBD multitemporales (ASF Vertex) queda como continuación para el Digital Twin de la tesis."><span class="node-num">3</span><div class="node-title">Anexo D · banda L</div><div class="node-sub">continuación tesis</div></div>
     </div>
   </div>
 
@@ -512,7 +512,7 @@
     </div>
   </div>
 
-  <p class="lead">El componente A del proyecto intentó clasificar el estado del manglar (intacto / regular / degradado) combinando Sentinel-2 + Sentinel-1, pero <b>cinco pruebas independientes</b> mostraron que ese enfoque no funciona con la banda C de SAR. En lugar de descartar los datos SAR, el informe <b>cambió la pregunta</b>: en vez de preguntar <i>qué estado tiene el manglar hoy</i>, pregunta <i>cuándo ocurrió un cambio</i>. La misma banda C que falla para clasificar sí detecta el momento exacto del cambio con magnitudes entre 0.35 y 1.73 dB, usando el algoritmo canónico <code>bfast::bfastmonitor</code> (Verbesselt et al. 2012).</p>
+  <p class="lead">El componente A del proyecto intentó clasificar el estado del manglar (intacto / regular / degradado) combinando Sentinel-2 + Sentinel-1, pero <b>cinco pruebas independientes</b> mostraron que ese enfoque no funciona con la banda C de SAR. En lugar de descartar los datos SAR, el informe <b>cambió la pregunta</b>: en vez de preguntar <i>qué estado tiene el manglar hoy</i>, pregunta <i>cuándo ocurrió un cambio</i>. La misma banda C que falla para clasificar sí detecta el momento exacto del cambio con magnitudes entre 0.35 y 1.73 dB, usando la función <code>bfast::bfastmonitor</code> en R (Verbesselt et al. 2012).</p>
 
   <h3>Objetivos específicos</h3>
   <ol>
@@ -722,7 +722,7 @@
     <p>RF Kappa = -0.224 (3/15); GPBoost OvR Kappa = -0.389 (0/15). El cambio de algoritmo no rescata; sistema estructuralmente bimodal confirmado por Hansen GFC (cero candidatos Regular).</p>
     <span class="tag bad">algoritmo espacial no resuelve el problema</span></div>
 
-  <h3>Componente B · BFAST Monitor (R canónico) — eje principal</h3>
+  <h3>Componente B · BFAST Monitor en R (Verbesselt et al. 2012) — eje principal</h3>
   <div class="step i2" data-n="6"><h5>Series mensuales VH agregadas</h5>
     <div class="meta">Sentinel-1 GRD · IW · VH · órbita DESCENDING · buffer 150 m × 5 estaciones</div>
     <p>Preprocesamiento: filtro speckle mediana focal 3×3, máscara de bordes VV < -30 dB, agregación temporal por mediana mensual. 48 observaciones por estación (Ene 2020 - Dic 2023).</p></div>
@@ -784,7 +784,7 @@
   <h3>Notebooks y scripts de análisis</h3>
   <table>
     <tr><th>Archivo</th><th>Ecosistema</th><th>Propósito</th></tr>
-    <tr><td><code>Informe_2/scripts/bfast_monitor.Rmd</code></td><td>R · bfast</td><td><b>Eje principal.</b> <code>bfastmonitor</code> canónico (Verbesselt 2012) con período histórico 2020-2021 y monitoreo 2022-2023, α = 0.05, orden 2. Outputs: <code>tabla_monitor.csv</code> con primera alerta y magnitud dB por estación.</td></tr>
+    <tr><td><code>Informe_2/scripts/bfast_monitor.Rmd</code></td><td>R · bfast</td><td><b>Eje principal.</b> Función <code>bfast::bfastmonitor</code> en R (Verbesselt et al. 2012) con período histórico 2020-2021 y monitoreo 2022-2023, α = 0.05, orden 2. Outputs: <code>tabla_monitor.csv</code> con primera alerta y magnitud dB por estación.</td></tr>
     <tr><td><code>Informe_2/scripts/bfast_monitor.py</code></td><td>Python · ruptures</td><td>Caracterización pragmática tipo BFASTlite como validación cruzada metodológica del Anexo H.</td></tr>
     <tr><td><code>Informe_2/scripts/bfast_bootstrap.py</code></td><td>Python</td><td>Bootstrap CI95 sobre residuales del componente armónico-estacional (300 iteraciones, Verbesselt 2010). Output: <code>tabla_bootstrap.csv</code>.</td></tr>
     <tr><td><code>Informe_2/scripts/compute_aoa.py</code></td><td>Python</td><td>Area of Applicability sobre stack 18 bandas en ventanas 1024×1024 (Anexo I). Outputs: <code>aoa_di_2023.tif</code>, <code>aoa_mask_2023.tif</code>, <code>aoa_thresholds.json</code>.</td></tr>
@@ -890,7 +890,7 @@
   <p class="lead">Bibliografía clave organizada por tema. Ubicada en <code>ARTICULOS/</code> y <code>LECTURAS/</code>.</p>
 
   <h3>Detección de cambio temporal · BFAST (eje principal del Informe 2)</h3>
-  <p class="ref"><b>Verbesselt, Zeileis & Herold (2012)</b> — Near real-time disturbance detection using satellite image time series. <i>Remote Sensing of Environment</i> 123, 98–108. <code>bfast::bfastmonitor</code> · base canónica del eje principal del Informe 2.</p>
+  <p class="ref"><b>Verbesselt, Zeileis & Herold (2012)</b> — Near real-time disturbance detection using satellite image time series. <i>Remote Sensing of Environment</i> 123, 98–108. <code>bfast::bfastmonitor</code> · base de referencia del eje principal del Informe 2.</p>
   <p class="ref"><b>Verbesselt, Hyndman, Newnham & Culvenor (2010)</b> — Detecting trend and seasonal changes in satellite image time series. <i>Remote Sensing of Environment</i> 114(1), 106–115. Base del bootstrap CI95 sobre residuales del componente armónico-estacional.</p>
 
   <h3>Validación espacial · Area of Applicability</h3>
@@ -906,7 +906,7 @@
 
   <h3>Manglares y CGSM</h3>
   <p class="ref"><b>Kotikot et al. (2024)</b> — Mangrove mapping with GEE Random Forest. Base del Informe 1.</p>
-  <p class="ref"><b>Giri et al. (2011)</b> — Status and distribution of mangrove forests of the world using Earth observation. <i>Global Ecology and Biogeography</i> 20(1) 154–159. Máscara canónica usada en muestreo de entrenamiento.</p>
+  <p class="ref"><b>Giri et al. (2011)</b> — Status and distribution of mangrove forests of the world using Earth observation. <i>Global Ecology and Biogeography</i> 20(1) 154–159. Máscara de referencia global usada en el muestreo de entrenamiento.</p>
   <p class="ref"><b>Hansen et al. (2013)</b> — High-resolution global maps of 21st-century forest cover change. <i>Science</i> 342(6160), 850–853. Global Forest Change v1.12. Cobertura forestal treecover2000 y lossyear utilizados en los Anexos E y J para generar muestras Regular y Degradado sobre la máscara Giri. Cero candidatos Regular en 50 000 puntos confirma la bimodalidad estructural del manglar de la CGSM.</p>
   <p class="ref"><b>Cornforth, Fatoyinbo, Freemantle & Pettorelli (2013)</b> — Advanced Land Observing Satellite Phased Array Type L-Band SAR (ALOS PALSAR) to Inform the Conservation of Mangroves: Sundarbans as a Case Study. <i>Remote Sensing</i> 5(1), 224–237. Justifica la hipótesis de banda L del Anexo D.</p>
   <p class="ref"><b>Beltrán et al. (2022)</b> — Datos de monitoreo de la estructura de los manglares de la Ciénaga Grande de Santa Marta (Magdalena). INVEMAR DwC-A · DOI 10.15472/2poedl. Conjunto base de 29 651 registros 1995-2021.</p>
@@ -970,7 +970,7 @@
     <p style="font-size:13px;color:var(--muted)">Cinco pruebas convergentes (Anexos E, F, G, I, J) establecieron que el régimen óptico-SAR banda C tiene límites para discriminar estado estructural instantáneo. Pero el mismo régimen sí responde con magnitudes 0.35-1.73 dB estadísticamente significativas a la pregunta de cambio temporal sobre línea base reciente. La reformulación no es retirada sino aprovechamiento dirigido de lo que la banda C sí puede hacer.</p>
   </div>
   <div class="card i2">
-    <h4 style="color:var(--i2)">¿Por qué BFAST Monitor (canónico R) y no BFAST estándar?</h4>
+    <h4 style="color:var(--i2)">¿Por qué BFAST Monitor en R y no BFAST estándar?</h4>
     <p style="font-size:13px;color:var(--muted)">BFAST estándar detecta breakpoints sobre la serie completa de forma retrospectiva; BFAST Monitor (Verbesselt 2012) opera con período histórico fijo + monitoreo prospectivo, lo que produce alertas cercanas al evento físico. Esto es lo que necesita un Digital Twin: detección anticipada, no análisis post-mortem.</p>
   </div>
   <div class="card i2">
