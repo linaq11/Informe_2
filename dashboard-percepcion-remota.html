@@ -88,6 +88,104 @@
   .legend-row{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:10px 0;}
   .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
   hr{border:none;border-top:1px solid var(--line);margin:24px 0;}
+
+  /* ═══════════════════════════════════════════════════════════════
+     GLASSMORPHISM · capa visual sobre la paleta base
+     Para revertir, eliminar este bloque entre GLASS-START y GLASS-END
+  ═══════════════════════════════════════════════════════════════ */
+  /* GLASS-START */
+  html,body{
+    background:#0a0e1a;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(94,200,255,0.10), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 100% 30%, rgba(167,139,250,0.10), transparent 60%),
+      radial-gradient(ellipse 90% 70% at 50% 100%, rgba(94,200,255,0.06), transparent 60%),
+      linear-gradient(180deg, #0a0e1a 0%, #0e0e1f 50%, #0a0e1a 100%);
+    background-attachment:fixed;
+  }
+  aside{
+    background:rgba(20,26,40,0.55);
+    backdrop-filter:blur(20px) saturate(160%);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    border-right:1px solid rgba(255,255,255,0.06);
+  }
+  aside h1{
+    background:linear-gradient(135deg,#5ec8ff,#a78bfa);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+  }
+  .card,.stat,.step,details,.flow,.finding{
+    background:rgba(255,255,255,0.04);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .stat{padding:14px 16px;}
+  .stat .n{
+    background:linear-gradient(135deg,#5ec8ff,#a78bfa);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+    font-size:24px;
+  }
+  .card.i1{border-left:3px solid var(--i1);box-shadow:0 4px 18px rgba(94,200,255,0.15), inset 0 1px 0 rgba(255,255,255,0.05);}
+  .card.i2{border-left:3px solid var(--i2);box-shadow:0 4px 18px rgba(167,139,250,0.15), inset 0 1px 0 rgba(255,255,255,0.05);}
+  h2{font-size:23px;letter-spacing:-0.01em;}
+  h2.i1, h2.i2{
+    background:linear-gradient(135deg,#5ec8ff 0%,#a78bfa 100%);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+  }
+  h3{
+    color:#7dd3fc;
+    letter-spacing:-0.005em;
+  }
+  h2 .pill{
+    background:rgba(255,255,255,0.06);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.10);
+    color:#c9d1d9;
+  }
+  table{
+    background:rgba(255,255,255,0.025);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  th{
+    background:rgba(255,255,255,0.05);
+    color:#7dd3fc;
+    border-bottom:1px solid rgba(255,255,255,0.10);
+  }
+  td{border-bottom:1px solid rgba(255,255,255,0.04);}
+  tr:hover{background:rgba(255,255,255,0.03);}
+  code{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.06);
+    color:#c4e0ff;
+  }
+  .tag{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.10);
+    backdrop-filter:blur(8px);
+  }
+  .chip{
+    background:rgba(255,255,255,0.04);
+    backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,0.10);
+  }
+  .step::before{
+    box-shadow:0 0 14px rgba(167,139,250,0.45);
+  }
+  figure.card, figure{
+    background:rgba(255,255,255,0.03);
+    backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+  }
+  /* GLASS-END */
 </style>
 </head>
 <body>
