@@ -200,15 +200,55 @@
   }
 
   /* 2. Glossary: subtle dotted underline on <abbr> */
-  abbr[title] {
+  abbr[title], abbr[data-glos] {
     text-decoration: none;
     border-bottom: 1px dotted rgba(125,211,252,0.55);
     cursor: help;
   }
-  abbr[title]:hover {
+  abbr[title]:hover, abbr[data-glos]:hover {
     color: var(--accent);
     border-bottom-color: var(--accent);
   }
+  /* Custom tooltip (reemplaza el nativo) */
+  .glos-tip {
+    position: absolute; z-index: 250;
+    max-width: 360px;
+    background: rgba(20,26,40,0.96);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border: 1px solid rgba(125,211,252,0.25);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 24px rgba(125,211,252,0.08);
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 12.5px;
+    line-height: 1.5;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.12s, transform 0.12s;
+  }
+  .glos-tip.show { opacity: 1; transform: translateY(0); }
+  .glos-tip .term {
+    display: inline-block;
+    font-weight: 700;
+    color: var(--accent);
+    margin-right: 6px;
+    font-size: 13px;
+  }
+  .glos-tip .def { color: var(--text); }
+  .glos-tip .def b { color: #fff; }
+  /* Sección Glosario */
+  #glosario .glos-table { width: 100%; border-collapse: collapse; }
+  #glosario .glos-table td { padding: 12px 14px; vertical-align: top; }
+  #glosario .glos-table td.term {
+    width: 160px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 13px;
+  }
+  #glosario .glos-table tr:hover { background: rgba(125,211,252,0.05); }
 
   /* 3. Accordion on step cards */
   .step h5 {
@@ -382,6 +422,7 @@
     <a href="#replicas">Réplicas y Repos</a>
     <a href="#articulos">Artículos Citados</a>
     <a href="#decisiones">Decisiones Clave</a>
+    <a href="#glosario">Glosario</a>
   </nav>
 </aside>
 
@@ -1271,6 +1312,15 @@
   </div>
 </section>
 
+<!-- ════════════════ GLOSARIO ════════════════ -->
+<section id="glosario">
+  <h2>Glosario <span class="pill">26 términos · auto-generado desde el corpus del dashboard</span></h2>
+  <p class="lead">Acrónimos y términos técnicos utilizados a lo largo del informe. En el cuerpo del dashboard aparecen con subrayado punteado al hover; aquí están listados como referencia rápida.</p>
+  <div class="card">
+    <table class="glos-table" id="glos-table-body"></table>
+  </div>
+</section>
+
 </main>
 </div>
 
@@ -1332,14 +1382,15 @@ const GLOSARIO = {
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach(node => {
-    if (!node.nodeValue || node.parentElement.closest("abbr, code, .search-modal, script, style")) return;
+    if (!node.nodeValue || node.parentElement.closest("abbr, code, .search-modal, .glos-table, script, style, #glosario")) return;
     let html = node.nodeValue;
     let modified = false;
     for (const [term, def] of Object.entries(GLOSARIO)) {
       if (seen.has(term)) continue;
       const re = new RegExp("\\b" + term.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&") + "\\b");
       if (re.test(html)) {
-        html = html.replace(re, `<abbr title="${def}">${term}</abbr>`);
+        const safeDef = def.replace(/"/g, '&quot;');
+        html = html.replace(re, `<abbr data-glos="${safeDef}">${term}</abbr>`);
         seen.add(term);
         modified = true;
       }
@@ -1350,6 +1401,51 @@ const GLOSARIO = {
       node.parentNode.replaceChild(span, node);
     }
   });
+})();
+
+/* ───────── Tooltip custom para abbr[data-glos] ───────── */
+const glosTip = document.createElement("div");
+glosTip.className = "glos-tip";
+document.body.appendChild(glosTip);
+
+function positionTip(abbr) {
+  const r = abbr.getBoundingClientRect();
+  const tipW = glosTip.offsetWidth;
+  const tipH = glosTip.offsetHeight;
+  let left = r.left + window.scrollX + r.width / 2 - tipW / 2;
+  let top = r.bottom + window.scrollY + 8;
+  // Clamp horizontalmente
+  left = Math.max(8, Math.min(window.innerWidth - tipW - 8, left));
+  // Si no cabe abajo, ponerlo arriba
+  if (r.bottom + tipH + 16 > window.innerHeight) {
+    top = r.top + window.scrollY - tipH - 8;
+  }
+  glosTip.style.left = left + "px";
+  glosTip.style.top = top + "px";
+}
+
+document.addEventListener("mouseover", e => {
+  const ab = e.target.closest("abbr[data-glos]");
+  if (!ab) return;
+  glosTip.innerHTML = `<span class="term">${ab.textContent}</span><span class="def">${ab.dataset.glos}</span>`;
+  positionTip(ab);
+  requestAnimationFrame(() => glosTip.classList.add("show"));
+});
+document.addEventListener("mouseout", e => {
+  const ab = e.target.closest("abbr[data-glos]");
+  if (!ab) return;
+  glosTip.classList.remove("show");
+});
+document.addEventListener("scroll", () => glosTip.classList.remove("show"), true);
+
+/* ───────── Auto-build sección Glosario ───────── */
+(function buildGlossarySection() {
+  const body = document.getElementById("glos-table-body");
+  if (!body) return;
+  const sorted = Object.entries(GLOSARIO).sort((a,b) => a[0].localeCompare(b[0]));
+  body.innerHTML = sorted.map(([term, def]) =>
+    `<tr><td class="term">${term}</td><td>${def}</td></tr>`
+  ).join("");
 })();
 
 /* ───────── Atajos de teclado: j/k entre secciones, / búsqueda, Ctrl/Cmd+K ───────── */
@@ -1395,7 +1491,8 @@ const SECTION_NAMES = {
   "i2-data": "Informe 2 · Datos",
   "replicas": "Réplicas",
   "articulos": "Artículos Citados",
-  "decisiones": "Decisiones Clave"
+  "decisiones": "Decisiones Clave",
+  "glosario": "Glosario"
 };
 
 function buildSearchIndex() {
