@@ -186,9 +186,183 @@
     border-radius:14px;
   }
   /* GLASS-END */
+
+  /* ═══════════════════════════════════════════════════════════════
+     IMPROVEMENTS · sticky headers, print, responsive, search, accordion
+  ═══════════════════════════════════════════════════════════════ */
+  /* IMPROVEMENTS-START */
+
+  /* 1. Sticky table headers */
+  thead th, table > tr:first-child th {
+    position: sticky; top: 0; z-index: 5;
+    background: rgba(20,26,40,0.95);
+    backdrop-filter: blur(12px);
+  }
+
+  /* 2. Glossary: subtle dotted underline on <abbr> */
+  abbr[title] {
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(125,211,252,0.55);
+    cursor: help;
+  }
+  abbr[title]:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* 3. Accordion on step cards */
+  .step h5 {
+    cursor: pointer; user-select: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step h5::after {
+    content: "▾";
+    margin-left: auto;
+    font-size: 11px;
+    opacity: 0.55;
+    transition: transform 0.2s;
+  }
+  .step.collapsed h5::after { transform: rotate(-90deg); }
+  .step.collapsed > .meta,
+  .step.collapsed > p,
+  .step.collapsed > .tag,
+  .step.collapsed > span,
+  .step.collapsed > figure { display: none; }
+
+  /* 4. Hamburger button (responsive) */
+  .menu-btn {
+    display: none;
+    position: fixed; top: 12px; left: 12px; z-index: 200;
+    width: 38px; height: 38px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(20,26,40,0.85);
+    backdrop-filter: blur(14px);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 18px;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+
+  /* 5. Search modal Ctrl/Cmd+K */
+  .search-modal {
+    display: none;
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    align-items: flex-start; justify-content: center;
+    padding-top: 12vh;
+  }
+  .search-modal.open { display: flex; }
+  .search-box {
+    width: min(640px, 90vw);
+    background: rgba(20,26,40,0.92);
+    backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    padding: 12px 14px;
+  }
+  .search-box input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 17px;
+    padding: 10px 8px;
+    outline: none;
+  }
+  .search-box .hint {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 4px 8px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 6px;
+  }
+  .search-results {
+    max-height: 50vh;
+    overflow-y: auto;
+    margin-top: 6px;
+  }
+  .search-result {
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .search-result:hover, .search-result.focused {
+    background: rgba(125,211,252,0.10);
+  }
+  .search-result .sect { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+  .search-result .snip { font-size: 13px; color: var(--text); line-height: 1.45; }
+  .search-result mark { background: rgba(255,178,77,0.35); color: inherit; padding: 0 2px; border-radius: 2px; }
+
+  /* 6. Responsive sidebar drawer */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    aside {
+      position: fixed; top: 0; left: 0;
+      height: 100vh; width: 260px;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: 150;
+    }
+    aside.open { transform: translateX(0); }
+    main { padding: 56px 20px 80px; }
+    .menu-btn { display: flex; }
+  }
+
+  /* 7. Print stylesheet — paper-friendly */
+  @media print {
+    html, body {
+      background: white !important;
+      background-image: none !important;
+      color: #000 !important;
+    }
+    aside, .menu-btn, .search-modal { display: none !important; }
+    .layout { display: block !important; }
+    main { padding: 0 !important; max-width: 100% !important; }
+    section { display: block !important; page-break-after: always; }
+    .card, .stat, .step, details, .flow, .finding, figure, figure.card, table {
+      background: white !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: 1px solid #999 !important;
+      box-shadow: none !important;
+      color: #000 !important;
+    }
+    h1, h2, h3, h4, h5, .stat .n, aside h1 {
+      color: #000 !important;
+      background: none !important;
+      -webkit-text-fill-color: #000 !important;
+    }
+    th { background: #eee !important; color: #000 !important; }
+    td { color: #000 !important; }
+    .tag { border: 1px solid #999 !important; background: #f5f5f5 !important; color: #000 !important; }
+    a { color: #000 !important; text-decoration: underline; }
+    abbr[title] { border-bottom: none !important; }
+    .step.collapsed > .meta,
+    .step.collapsed > p,
+    .step.collapsed > .tag,
+    .step.collapsed > span { display: block !important; }
+    .step h5::after { display: none !important; }
+  }
+  /* IMPROVEMENTS-END */
 </style>
 </head>
 <body>
+
+<button class="menu-btn" id="menuBtn" aria-label="Menú de secciones">☰</button>
+
+<div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
+  <div class="search-box">
+    <div class="hint">Búsqueda en el dashboard · Esc para cerrar · ↑↓ navegar · Enter ir</div>
+    <input type="text" id="searchInput" placeholder="Buscar (e.g. Kappa, Aguas Negras, 1.73 dB, BFAST)..." autocomplete="off">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
 <div class="layout">
 <aside>
   <h1>🛰️ Percepción Remota</h1>
@@ -216,7 +390,7 @@
 <!-- ════════════════ OVERVIEW ════════════════ -->
 <section id="overview" class="active">
   <h2>Manglar de la CGSM · Random Forest (Informe 1) + BFAST Monitor (Informe 2) <span class="pill">2020-2023 · alerta temprana Digital Twin</span></h2>
-  <p class="lead">Caso de estudio: <b>Ciénaga Grande de Santa Marta (CGSM)</b>, Colombia. Línea de trabajo replicando Kotikot et al. (2024) y extendiendo con SAR y validación in-situ INVEMAR/CARICOMP.</p>
+  <p class="lead">Caso de estudio: <b><abbr title="Ciénaga Grande de Santa Marta · complejo lagunar costero más extenso de Colombia, departamento del Magdalena">Ciénaga Grande de Santa Marta (CGSM)</abbr></b>, Colombia. Línea de trabajo replicando Kotikot et al. (2024) y extendiendo con SAR y validación in-situ INVEMAR/CARICOMP.</p>
 
   <div class="grid">
     <div class="stat"><div class="n">2</div><div class="l">Informes principales</div></div>
@@ -231,7 +405,7 @@
 
   <figure class="card" style="padding:10px;margin:14px 0">
     <a href="figuras/Fig0_area_estudio.png" target="_blank">
-      <img src="figuras/Fig0_area_estudio.png" style="width:100%;border-radius:4px;display:block" alt="Área de estudio CGSM con AOI y 5 estaciones CARICOMP">
+      <img loading="lazy" src="figuras/Fig0_area_estudio.png" style="width:100%;border-radius:4px;display:block" alt="Área de estudio CGSM con AOI y 5 estaciones CARICOMP">
     </a>
     <figcaption style="font-size:12px;color:var(--muted);margin-top:8px"><b>Figura 0.</b> Área de estudio. (a) Departamento del Magdalena en Colombia. (b) Referencia urbana y delimitación del AOI. (c) AOI operacional de 5 053 km² con el polígono SFF CGSM (verde) y las cinco estaciones CARICOMP del INVEMAR (triángulos rojos). Coordenadas en WGS84.</figcaption>
   </figure>
@@ -639,7 +813,7 @@
 
   <figure class="card" style="padding:12px;margin:14px 0;border:2px solid var(--i2)">
     <a href="figuras/Fig11_breakpoints_VH.png" target="_blank">
-      <img src="figuras/Fig11_breakpoints_VH.png" style="width:100%;border-radius:4px;display:block" alt="Series VH con breakpoints BFAST Monitor en 5 estaciones">
+      <img loading="lazy" src="figuras/Fig11_breakpoints_VH.png" style="width:100%;border-radius:4px;display:block" alt="Series VH con breakpoints BFAST Monitor en 5 estaciones">
     </a>
     <figcaption style="font-size:12.5px;color:var(--muted);margin-top:10px"><b>Figura 1.</b> Series mensuales de retrodispersión VH Sentinel-1 banda C en las cinco estaciones permanentes CARICOMP. Sombreado azul claro: período histórico 2020-2021. Sombreado amarillo claro: período de monitoreo 2022-2023. Línea roja vertical: primera alerta <code>bfast::bfastmonitor</code> (Verbesselt et al. 2012, α = 0.05). Sombra roja translúcida: IC95 bootstrap (300 iteraciones, Verbesselt et al. 2010). Anotación ΔdB: magnitud del cambio reportada en la Tabla 1.</figcaption>
   </figure>
@@ -687,7 +861,7 @@
 
   <figure class="card" style="padding:10px;margin:14px 0">
     <a href="figuras/Fig5_serie_temporal_CARICOMP.png" target="_blank">
-      <img src="figuras/Fig5_serie_temporal_CARICOMP.png" style="width:100%;border-radius:4px;display:block" alt="Serie estructural CARICOMP 1995-2021 por estación">
+      <img loading="lazy" src="figuras/Fig5_serie_temporal_CARICOMP.png" style="width:100%;border-radius:4px;display:block" alt="Serie estructural CARICOMP 1995-2021 por estación">
     </a>
     <figcaption style="font-size:12px;color:var(--muted);margin-top:8px"><b>Figura 5.</b> Serie estructural CARICOMP 1995-2021 sobre las cinco estaciones permanentes. Área basal (BA) y densidad arbórea por estación-año. Sustrato empírico del Anexo K, base de los percentiles globales P33 = 35.3 m²/ha y P66 = 88.4 m²/ha que definen el esquema ordinal Intacto / Regular / Degradado.</figcaption>
   </figure>
@@ -697,19 +871,19 @@
 
   <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0">
     <a href="figuras/Fig1_matrices_confusion.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig1_matrices_confusion.png" style="width:100%;border-radius:4px;display:block" alt="Matrices confusión">
+      <img loading="lazy" src="figuras/Fig1_matrices_confusion.png" style="width:100%;border-radius:4px;display:block" alt="Matrices confusión">
       <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Matrices de confusión RF estático</b> · diagnóstico cuantitativo del componente A</div>
     </a>
     <a href="figuras/Fig4_importancia_variables.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig4_importancia_variables.png" style="width:100%;border-radius:4px;display:block" alt="Importancia variables">
+      <img loading="lazy" src="figuras/Fig4_importancia_variables.png" style="width:100%;border-radius:4px;display:block" alt="Importancia variables">
       <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Importancia de variables</b> · SAR = 0 (Anexo I)</div>
     </a>
     <a href="figuras/Fig3_errores_persistentes.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig3_errores_persistentes.png" style="width:100%;border-radius:4px;display:block" alt="Errores persistentes">
+      <img loading="lazy" src="figuras/Fig3_errores_persistentes.png" style="width:100%;border-radius:4px;display:block" alt="Errores persistentes">
       <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Errores persistentes del clasificador</b> · patrón espacial sistemático</div>
     </a>
     <a href="figuras/Fig_REDCAM_salinidad_historica.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig_REDCAM_salinidad_historica.png" style="width:100%;border-radius:4px;display:block" alt="Salinidad REDCAM">
+      <img loading="lazy" src="figuras/Fig_REDCAM_salinidad_historica.png" style="width:100%;border-radius:4px;display:block" alt="Salinidad REDCAM">
       <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>REDCAM</b> · serie histórica de salinidad CGSM (contexto hidrológico)</div>
     </a>
   </div>
@@ -779,7 +953,7 @@
 
   <figure class="card" style="padding:10px;margin:10px 0">
     <a href="figuras/Fig_pipeline_bfast.png" target="_blank">
-      <img src="figuras/Fig_pipeline_bfast.png" style="width:100%;border-radius:4px;display:block" alt="Pipeline BFAST">
+      <img loading="lazy" src="figuras/Fig_pipeline_bfast.png" style="width:100%;border-radius:4px;display:block" alt="Pipeline BFAST">
     </a>
     <figcaption style="font-size:12.5px;color:var(--muted);margin-top:8px"><b>Figura 2.</b> Pipeline metodológico: del producto Sentinel-1 GRD (01) a los productos finales (07), pasando por BFAST Monitor (04), bootstrap CI95 (05) y contraste frente a eventos INVEMAR ITF 2023 (06).</figcaption>
   </figure>
@@ -795,7 +969,7 @@
     <span class="tag bad">supuesto de independencia violado</span>
     <figure style="margin:12px 0 0 0">
       <a href="figuras/Fig9_autocorrelacion_espacial.png" target="_blank">
-        <img src="figuras/Fig9_autocorrelacion_espacial.png" style="width:100%;border-radius:4px;display:block" alt="Diagnóstico autocorrelación espacial Moran I">
+        <img loading="lazy" src="figuras/Fig9_autocorrelacion_espacial.png" style="width:100%;border-radius:4px;display:block" alt="Diagnóstico autocorrelación espacial Moran I">
       </a>
       <figcaption style="font-size:11.5px;color:var(--muted);margin-top:6px"><b>Figura 3.</b> Diagnóstico de autocorrelación espacial sobre las 15 parcelas DwC-A. (A) Concordancia media con Moran I y p-valor. (B) Residual ordinal medio. (C) Variograma empírico ajustado a modelo esférico (rango ≈ 8 187 m, meseta 1.40, nugget nulo).</figcaption>
     </figure></div>
@@ -810,7 +984,7 @@
     <span class="tag bad">fusión óptico-SAR es efectivamente óptica</span>
     <figure style="margin:12px 0 0 0">
       <a href="figuras/Fig10_AoA_mask_2023.png" target="_blank">
-        <img src="figuras/Fig10_AoA_mask_2023.png" style="width:100%;border-radius:4px;display:block" alt="Máscara AoA 2023 sobre AOI CGSM">
+        <img loading="lazy" src="figuras/Fig10_AoA_mask_2023.png" style="width:100%;border-radius:4px;display:block" alt="Máscara AoA 2023 sobre AOI CGSM">
       </a>
       <figcaption style="font-size:11.5px;color:var(--muted);margin-top:6px"><b>Figura 4.</b> Area of Applicability sobre el AOI CGSM, 2023. Verde: dentro del envoltorio multivariado de entrenamiento (2 347.8 km², 36.8 %). Rojo: extrapolación (4 038.9 km², 63.2 %). Etiquetas amarillas: estaciones CARICOMP. Umbral DI = 0.123 (CV k=5).</figcaption>
     </figure></div>
@@ -1101,15 +1275,173 @@
 </div>
 
 <script>
+/* ───────── Navegación de secciones (original) ───────── */
 const links = document.querySelectorAll("aside nav a");
 const sections = document.querySelectorAll("main section");
 function go(id) {
   links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#"+id));
   sections.forEach(s => s.classList.toggle("active", s.id === id));
   window.scrollTo({top:0,behavior:"smooth"});
+  document.querySelector("aside")?.classList.remove("open");
 }
 links.forEach(a => a.addEventListener("click", e => { e.preventDefault(); go(a.getAttribute("href").slice(1)); }));
 if (location.hash) go(location.hash.slice(1));
+
+/* ───────── Hamburger drawer (responsive) ───────── */
+const menuBtn = document.getElementById("menuBtn");
+const aside = document.querySelector("aside");
+menuBtn?.addEventListener("click", () => aside.classList.toggle("open"));
+
+/* ───────── Acordeón en step cards ───────── */
+document.querySelectorAll(".step h5").forEach(h => {
+  h.addEventListener("click", () => h.parentElement.classList.toggle("collapsed"));
+});
+
+/* ───────── Glosario auto-wrap (primera ocurrencia por sección) ───────── */
+const GLOSARIO = {
+  "BFAST": "Breaks For Additive Season and Trend · algoritmo de detección de quiebres en series temporales (Verbesselt et al. 2010, 2012)",
+  "AoA": "Area of Applicability · zona donde un modelo predictivo puede aplicarse con confianza estadística (Meyer & Pebesma 2021)",
+  "DwC-A": "Darwin Core Archive · estándar de empaquetado de datos de biodiversidad publicado por GBIF",
+  "INVEMAR": "Instituto de Investigaciones Marinas y Costeras José Benito Vives de Andréis · entidad científica colombiana",
+  "CARICOMP": "Caribbean Coastal Marine Productivity Programme · red regional de monitoreo de ecosistemas costeros 1992-2014",
+  "ITF": "Informe Técnico Final · entregable anual del monitoreo INVEMAR a las autoridades ambientales",
+  "SFF": "Santuario de Fauna y Flora · categoría de área protegida del Sistema de Parques Nacionales de Colombia",
+  "OLS-MOSUM": "Ordinary Least Squares — Moving Sum · estadístico acumulado sobre residuales usado por BFAST Monitor para detectar el primer cambio significativo",
+  "PELT": "Pruned Exact Linear Time · algoritmo de detección múltiple de puntos de cambio con penalización (Killick et al. 2012)",
+  "BIC": "Bayesian Information Criterion · criterio de selección de modelos que penaliza la complejidad",
+  "GPBoost": "Gradient Boosting + Gaussian Process · algoritmo que combina boosting con procesos gaussianos para modelar autocorrelación espacial (Sigrist 2020, 2021)",
+  "AGB": "Above-Ground Biomass · biomasa aérea (peso seco de tronco y ramas por hectárea)",
+  "NDVI": "Normalized Difference Vegetation Index · (NIR-Red)/(NIR+Red), indicador de vigor vegetal",
+  "NIR": "Near-InfraRed · región del espectro entre 700 y 1300 nm",
+  "SWIR": "Short-Wave InfraRed · región entre 1400 y 3000 nm, sensible a humedad foliar",
+  "GEE": "Google Earth Engine · plataforma de cómputo geoespacial en la nube",
+  "GRD": "Ground Range Detected · producto Sentinel-1 con detección de amplitud y multilook",
+  "IW": "Interferometric Wide · modo de adquisición Sentinel-1 con franja de 250 km",
+  "SAR": "Synthetic Aperture Radar · radar de apertura sintética, sensor activo independiente de nubes y luz solar",
+  "DEM": "Digital Elevation Model · modelo digital de elevación del terreno",
+  "CI95": "Intervalo de Confianza al 95 % · rango que contiene el valor verdadero con probabilidad 0.95",
+  "GFC": "Global Forest Change · producto global de pérdida y ganancia forestal (Hansen et al. 2013)",
+  "REDCAM": "Red de Vigilancia para la Conservación y Protección de las Aguas Marinas y Costeras · programa INVEMAR",
+  "ICAM": "Índice de Calidad de Aguas Marinas · indicador sintético INVEMAR",
+  "GBIF": "Global Biodiversity Information Facility · plataforma internacional de datos abiertos de biodiversidad",
+  "IGAC": "Instituto Geográfico Agustín Codazzi · autoridad cartográfica y catastral de Colombia"
+};
+(function wrapGlossary() {
+  const seen = new Set();
+  const walker = document.createTreeWalker(document.querySelector("main"), NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    if (!node.nodeValue || node.parentElement.closest("abbr, code, .search-modal, script, style")) return;
+    let html = node.nodeValue;
+    let modified = false;
+    for (const [term, def] of Object.entries(GLOSARIO)) {
+      if (seen.has(term)) continue;
+      const re = new RegExp("\\b" + term.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&") + "\\b");
+      if (re.test(html)) {
+        html = html.replace(re, `<abbr title="${def}">${term}</abbr>`);
+        seen.add(term);
+        modified = true;
+      }
+    }
+    if (modified) {
+      const span = document.createElement("span");
+      span.innerHTML = html;
+      node.parentNode.replaceChild(span, node);
+    }
+  });
+})();
+
+/* ───────── Atajos de teclado: j/k entre secciones, / búsqueda, Ctrl/Cmd+K ───────── */
+const allSectionIds = Array.from(sections).map(s => s.id);
+function jumpSection(delta) {
+  const current = Array.from(sections).findIndex(s => s.classList.contains("active"));
+  const next = Math.max(0, Math.min(allSectionIds.length - 1, current + delta));
+  go(allSectionIds[next]);
+}
+document.addEventListener("keydown", e => {
+  const isTyping = ["INPUT","TEXTAREA"].includes(document.activeElement.tagName);
+  if (isTyping && e.key !== "Escape") return;
+  if ((e.ctrlKey || e.metaKey) && e.key === "k") { e.preventDefault(); openSearch(); }
+  else if (e.key === "/" && !isTyping) { e.preventDefault(); openSearch(); }
+  else if (e.key === "Escape") { closeSearch(); }
+  else if (e.key === "j" && !isTyping) { e.preventDefault(); jumpSection(1); }
+  else if (e.key === "k" && !isTyping) { e.preventDefault(); jumpSection(-1); }
+});
+
+/* ───────── Búsqueda Ctrl/Cmd+K ───────── */
+const searchModal = document.getElementById("searchModal");
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
+let focusedIdx = 0;
+
+function openSearch() {
+  searchModal.classList.add("open");
+  searchInput.value = "";
+  searchResults.innerHTML = "";
+  setTimeout(() => searchInput.focus(), 30);
+}
+function closeSearch() { searchModal.classList.remove("open"); }
+searchModal.addEventListener("click", e => { if (e.target === searchModal) closeSearch(); });
+
+const SECTION_NAMES = {
+  "overview": "Overview",
+  "flow": "Flujo de Trabajo",
+  "i1-resumen": "Informe 1 · Resumen",
+  "i1-metodo": "Informe 1 · Metodología",
+  "i1-data": "Informe 1 · Datos",
+  "i2-resumen": "Informe 2 · Resumen",
+  "i2-metodo": "Informe 2 · Metodología",
+  "i2-data": "Informe 2 · Datos",
+  "replicas": "Réplicas",
+  "articulos": "Artículos Citados",
+  "decisiones": "Decisiones Clave"
+};
+
+function buildSearchIndex() {
+  return Array.from(sections).map(s => ({
+    id: s.id,
+    name: SECTION_NAMES[s.id] || s.id,
+    text: s.innerText
+  }));
+}
+let searchIndex = null;
+
+function doSearch(q) {
+  if (!searchIndex) searchIndex = buildSearchIndex();
+  q = q.trim();
+  if (!q || q.length < 2) { searchResults.innerHTML = ""; return; }
+  const qLow = q.toLowerCase();
+  const matches = [];
+  for (const sec of searchIndex) {
+    const idx = sec.text.toLowerCase().indexOf(qLow);
+    if (idx >= 0) {
+      const start = Math.max(0, idx - 40);
+      const end = Math.min(sec.text.length, idx + q.length + 60);
+      let snip = (start > 0 ? "..." : "") + sec.text.slice(start, end) + (end < sec.text.length ? "..." : "");
+      snip = snip.replace(new RegExp(q.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&"), "ig"), m => `<mark>${m}</mark>`);
+      matches.push({ id: sec.id, name: sec.name, snip });
+    }
+  }
+  focusedIdx = 0;
+  searchResults.innerHTML = matches.length
+    ? matches.map((m,i) => `<div class="search-result ${i===0?'focused':''}" data-id="${m.id}"><div class="sect">${m.name}</div><div class="snip">${m.snip}</div></div>`).join("")
+    : `<div class="search-result"><div class="snip" style="color:var(--muted)">Sin resultados para "${q}"</div></div>`;
+  searchResults.querySelectorAll(".search-result[data-id]").forEach(r =>
+    r.addEventListener("click", () => { go(r.dataset.id); closeSearch(); })
+  );
+}
+searchInput.addEventListener("input", e => doSearch(e.target.value));
+searchInput.addEventListener("keydown", e => {
+  const items = searchResults.querySelectorAll(".search-result[data-id]");
+  if (e.key === "ArrowDown") { e.preventDefault(); focusedIdx = Math.min(items.length-1, focusedIdx+1); updateFocused(items); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); focusedIdx = Math.max(0, focusedIdx-1); updateFocused(items); }
+  else if (e.key === "Enter" && items[focusedIdx]) { go(items[focusedIdx].dataset.id); closeSearch(); }
+});
+function updateFocused(items) {
+  items.forEach((it,i) => it.classList.toggle("focused", i === focusedIdx));
+  items[focusedIdx]?.scrollIntoView({ block: "nearest" });
+}
 </script>
 </body>
 </html>
