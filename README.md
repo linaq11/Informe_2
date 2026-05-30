@@ -1,10 +1,10 @@
-# BFAST Monitor sobre Sentinel-1 banda C en el manglar de la CGSM
+# BFAST Monitor sobre Sentinel-1 banda C en el manglar de la Ciénaga Grande de Santa Marta
 
-[![Ver Dashboard HTML](https://img.shields.io/badge/Ver-Dashboard%20HTML-orange?logo=html5&logoColor=white)](https://linaq11.github.io/Informe_2/dashboard-percepcion-remota.html)
+[![Ver Dashboard HTML](https://img.shields.io/badge/Ver-Dashboard%20HTML-orange?logo=html5&logoColor=white)](https://htmlpreview.github.io/?https://github.com/linaq11/Informe_2/blob/main/dashboard-percepcion-remota.html)
 
-Informe 2 — Curso de Percepción Remota, Maestría en Geomática, Universidad Nacional de Colombia.
+Informe 2 del curso de Percepción Remota, Maestría en Geomática, Universidad Nacional de Colombia.
 
-Detección de cambio estructural en cinco estaciones permanentes CARICOMP del INVEMAR mediante BFAST Monitor aplicado a series mensuales VH de Sentinel-1 banda C (2020-2023).
+Aplicación de BFAST Monitor (Verbesselt et al. 2012) a series mensuales VH de Sentinel-1 banda C sobre las cinco estaciones permanentes CARICOMP del INVEMAR (período histórico 2020-2021, monitoreo 2022-2023). El algoritmo detectó cambios estructurales significativos entre abril 2022 y octubre 2023 con magnitudes entre 0.35 y 1.73 dB. La alerta del modelo en Aguas Negras precedió en seis meses al inicio del período de pérdida del 33 % del arbolado reportado por INVEMAR (ITF 2023), demostrando que SAR banda C, que no resuelve la pregunta de estado estructural instantáneo (componente A), sí responde a la pregunta de detección de cambio temporal.
 
 - **Autor:** Lina María Quintero Fonseca · lquinterof@unal.edu.co
 - **Fecha:** Mayo 2026
