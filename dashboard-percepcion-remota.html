@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Manglar de la CGSM · Random Forest (Informe 1) + BFAST Monitor (Informe 2)</title>
+<style>
+  :root {
+    --bg:#0d1117; --panel:#161b22; --panel-2:#1c232e; --line:#262d3a;
+    --text:#e7eaf0; --muted:#8b95a7; --accent:#5ec8ff; --accent-2:#a78bfa;
+    --ok:#6dd58c; --warn:#ffb24d; --pink:#ff7eb6; --red:#ff6b6b;
+    --i1:#5ec8ff; --i2:#a78bfa;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:14.5px;line-height:1.55;}
+  .layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+  aside{background:var(--panel);border-right:1px solid var(--line);padding:18px 14px;
+    position:sticky;top:0;height:100vh;overflow-y:auto;}
+  aside h1{font-size:14.5px;margin:0 0 4px;color:var(--accent);letter-spacing:0.3px;}
+  aside .uni{font-size:11.5px;color:var(--muted);margin-bottom:18px;line-height:1.45;}
+  aside nav a{display:block;padding:7px 10px;color:var(--muted);text-decoration:none;
+    border-radius:6px;font-size:13px;margin:2px 0;}
+  aside nav a:hover{color:var(--text);background:var(--panel-2);}
+  aside nav a.active{color:var(--accent);background:var(--panel-2);border-left:2px solid var(--accent);}
+  aside nav .group{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;
+    margin:18px 0 4px 10px;}
+  main{padding:30px 36px 80px;max-width:1180px;}
+  h2{font-size:22px;margin:0 0 4px;letter-spacing:0.2px;}
+  h2 .pill{display:inline-block;font-size:11px;background:var(--panel-2);color:var(--muted);
+    padding:3px 9px;border-radius:999px;margin-left:10px;vertical-align:middle;font-weight:400;}
+  h2.i1{color:var(--i1);} h2.i2{color:var(--i2);}
+  h3{font-size:16px;margin:24px 0 10px;color:var(--accent);}
+  h4{font-size:13.5px;margin:18px 0 8px;color:var(--text);text-transform:uppercase;letter-spacing:0.6px;}
+  .lead{color:var(--muted);font-size:14px;margin:6px 0 22px;max-width:760px;}
+  section{display:none;animation:fade 0.2s ease;}
+  section.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:10px 0;}
+  .card.i1{border-left:3px solid var(--i1);}
+  .card.i2{border-left:3px solid var(--i2);}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
+  .stat .n{font-size:22px;color:var(--accent);font-weight:600;}
+  .stat .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-top:3px;}
+  table{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:13px;}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{color:var(--muted);font-weight:500;font-size:11.5px;text-transform:uppercase;letter-spacing:0.6px;
+    background:var(--panel-2);}
+  tr:hover{background:var(--panel-2);}
+  code{background:var(--panel-2);padding:1.5px 6px;border-radius:4px;font-size:12px;
+    font-family:ui-monospace,Consolas,monospace;color:var(--text);}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:12px 16px 12px 50px;margin:8px 0;position:relative;}
+  .step::before{content:attr(data-n);position:absolute;left:14px;top:14px;
+    width:26px;height:26px;border-radius:50%;background:var(--accent);color:#0a0d14;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+  .step.i2::before{background:var(--i2);}
+  .step h5{margin:0 0 4px;font-size:14px;}
+  .step .meta{font-size:11.5px;color:var(--muted);margin-bottom:6px;}
+  .step p{margin:4px 0;font-size:13px;color:var(--muted);}
+  .tag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:999px;
+    background:var(--panel-2);border:1px solid var(--line);color:var(--text);margin:2px 4px 2px 0;}
+  .tag.warn{background:rgba(255,178,77,0.15);border-color:var(--warn);color:var(--warn);}
+  .tag.ok{background:rgba(109,213,140,0.15);border-color:var(--ok);color:var(--ok);}
+  .tag.bad{background:rgba(255,107,107,0.15);border-color:var(--red);color:var(--red);}
+  .flow{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;
+    font-family:ui-monospace,Consolas,monospace;font-size:11.5px;white-space:pre;
+    color:var(--text);overflow-x:auto;line-height:1.5;}
+  .finding{background:var(--panel);border-left:3px solid var(--ok);padding:11px 15px;
+    margin:8px 0;border-radius:0 6px 6px 0;}
+  .finding.warn{border-left-color:var(--warn);}
+  .finding.bad{border-left-color:var(--red);}
+  .finding b{color:var(--ok);}
+  .finding.warn b{color:var(--warn);}
+  .finding.bad b{color:var(--red);}
+  .twocol{display:grid;gap:14px;grid-template-columns:1fr 1fr;}
+  @media (max-width:900px){.twocol{grid-template-columns:1fr;} .layout{grid-template-columns:1fr;} aside{position:static;height:auto;}}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:6px 0;}
+  details summary{cursor:pointer;font-weight:500;color:var(--accent);}
+  details[open] summary{margin-bottom:8px;}
+  .chip{display:inline-block;padding:3px 9px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:999px;font-size:11px;color:var(--muted);margin:2px 3px 2px 0;}
+  .chip.i1{color:var(--i1);border-color:var(--i1);}
+  .chip.i2{color:var(--i2);border-color:var(--i2);}
+  .ref{font-size:12px;color:var(--muted);margin:6px 0;padding-left:14px;text-indent:-14px;}
+  .ref b{color:var(--text);}
+  .legend-row{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:10px 0;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+  hr{border:none;border-top:1px solid var(--line);margin:24px 0;}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <h1>🛰️ Percepción Remota</h1>
+  <div class="uni">UNAL · Maestría en Geomática · 2026-I<br>Lina M. Quintero Fonseca</div>
+  <nav>
+    <a href="#overview" class="active">Overview</a>
+    <a href="#flow">Flujo de Trabajo Visual</a>
+    <div class="group">Informe 1</div>
+    <a href="#i1-resumen">Resumen y Hallazgos</a>
+    <a href="#i1-metodo">Metodología</a>
+    <a href="#i1-data">Datos y Scripts</a>
+    <div class="group">Informe 2</div>
+    <a href="#i2-resumen">Resumen y Hallazgos</a>
+    <a href="#i2-metodo">Metodología</a>
+    <a href="#i2-data">Datos y Scripts</a>
+    <div class="group">Recursos</div>
+    <a href="#replicas">Réplicas y Repos</a>
+    <a href="#articulos">Artículos Citados</a>
+    <a href="#decisiones">Decisiones Clave</a>
+  </nav>
+</aside>
+
+<main>
+
+<!-- ════════════════ OVERVIEW ════════════════ -->
+<section id="overview" class="active">
+  <h2>Manglar de la CGSM · Random Forest (Informe 1) + BFAST Monitor (Informe 2) <span class="pill">2020-2023 · alerta temprana Digital Twin</span></h2>
+  <p class="lead">Caso de estudio: <b>Ciénaga Grande de Santa Marta (CGSM)</b>, Colombia. Línea de trabajo replicando Kotikot et al. (2024) y extendiendo con SAR y validación in-situ INVEMAR/CARICOMP.</p>
+
+  <div class="grid">
+    <div class="stat"><div class="n">2</div><div class="l">Informes principales</div></div>
+    <div class="stat"><div class="n">9</div><div class="l">Notebooks Jupyter</div></div>
+    <div class="stat"><div class="n">16</div><div class="l">Scripts GEE JS</div></div>
+    <div class="stat"><div class="n">11</div><div class="l">Scripts R replicados</div></div>
+    <div class="stat"><div class="n">~25</div><div class="l">Artículos citados</div></div>
+    <div class="stat"><div class="n">5 053 km²</div><div class="l">AOI CGSM</div></div>
+    <div class="stat"><div class="n">29 651</div><div class="l">Registros CARICOMP</div></div>
+    <div class="stat"><div class="n">2020-2023</div><div class="l">Serie temporal</div></div>
+  </div>
+
+  <h3>Preguntas de investigación</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0">
+    <div class="card i1" style="border-left:4px solid var(--i1)">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--i1);font-weight:700;margin-bottom:6px">Informe 1 · clasificación estática</div>
+      ¿Es replicable la metodología de Kotikot et al. (2024) con Random Forest sobre Sentinel-2 SR para clasificar el estado del manglar (intacto / degradado / no-manglar) en una laguna tropical turbia como la CGSM durante 2020-2023, manteniendo separabilidad espectral en bandas NIR y SWIR?
+    </div>
+    <div class="card i2" style="border-left:4px solid var(--i2)">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--i2);font-weight:700;margin-bottom:6px">Informe 2 · detección de cambio</div>
+      <div style="margin-bottom:8px"><span style="font-size:10px;background:var(--i2);color:#1a1a1a;padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:0.5px">PRINCIPAL</span> ¿Cuándo ocurrieron cambios estructurales significativos en el manglar de la CGSM detectables por Sentinel-1 banda C durante el período 2020-2023?</div>
+      <div><span style="font-size:10px;background:#1a2030;color:var(--i2);padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:0.5px;border:1px solid var(--i2)">SUB</span> ¿Qué consistencia presenta la fecha de primera alerta del modelo frente a los eventos de mortalidad o perturbación documentados por el reporte INVEMAR ITF 2023 sobre las mismas estaciones?</div>
+    </div>
+  </div>
+
+  <h3>Línea de tiempo de los informes</h3>
+  <div class="card i1">
+    <h4 style="color:var(--i1);margin-top:0">Informe 1 — Replicación Kotikot et al. (2024)</h4>
+    <p style="color:var(--muted);font-size:13px">Random Forest sobre Sentinel-2 SR, temporada seca, 3 clases (intacto/degradado/no-manglar), 2020-2023.</p>
+    <span class="tag ok">accuracy 98.5%</span><span class="tag ok">Kappa 0.978</span><span class="tag">+14.9% cobertura 2020-2023</span><span class="tag warn">limitación: validación solo espectral</span>
+  </div>
+  <div class="card i2">
+    <h4 style="color:var(--i2);margin-top:0">Informe 2 — Validación in-situ + extensión SAR · Fusión 4 clases</h4>
+    <p style="color:var(--muted);font-size:13px">Sentinel-1 lluviosa + CARICOMP/INVEMAR (5 estaciones, 1995-2021) + Fusión S2⨁S1 a 4 clases (No-manglar/Degradado/Regular/Intacto).</p>
+    <span class="tag bad">Luna AB ↓67% 2015-17</span><span class="tag bad">Km22 densidad ↓92% 2015-18</span><span class="tag ok">Mejora neta +443 km² 2020-23</span><span class="tag">Insumo Digital Twin tesis</span>
+  </div>
+
+  <h3>Estructura de carpetas</h3>
+  <div class="flow">PERCEPCION REMOTA/
+├── Quintero_Informe1.docx/.pdf       ← Informe 1 entregable
+├── Quintero_Recuperacion1.pdf
+├── Correcciones_Informe1.md          ← respuesta evaluador (acc 98.5%)
+├── Informe_2/                        ← Informe 2 trabajo
+│   ├── AOI/                          ← geojson (CGSM 5053km², Pajarales Ma16, SFF)
+│   ├── scripts/                      ← 16 scripts GEE JS
+│   ├── csvs/                         ← validación SAR + S2 4clases
+│   ├── figuras/                      ← outputs visuales
+│   ├── Analisis_CSV_SAR_Validacion.ipynb
+│   ├── CARICOMP_*.csv (3 archivos)   ← AB y densidad procesadas
+│   ├── CGSM_Fusion_thumbnail_2020-2023.tif
+│   ├── ICAM xlsx + REDCAM 2021/22/23 PDFs
+│   └── Informe_2_CGSM.pdf
+├── AGB_RF_GEE_CGSM/                  ← ejercicio biomasa (3 iter)
+├── RF_spatial_proxies/               ← réplica Milà et al. 2024
+├── carlesmila-RF-spatial-proxies/    ← repo original
+├── ARTICULOS/ + LECTURAS/            ← bibliografía
+├── dwca-caricomp-manglares/          ← DwC-A 29 651 reg 1995-2021
+├── dwca-invemar_estructura_manglar/
+├── SHP CGAM/, GEE/, CGSM/, ESTACIONES R/
+└── writing/                          ← Avances y reseñas</div>
+</section>
+
+<!-- ════════════════ FLOW ════════════════ -->
+<section id="flow">
+  <style>
+    #flow .pipe-tabs{display:flex;gap:8px;margin:14px 0 6px;flex-wrap:wrap;}
+    #flow .pipe-tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);
+      padding:9px 20px;border-radius:8px;cursor:pointer;font-size:13px;transition:all 0.15s;font-family:inherit;}
+    #flow .pipe-tab:hover{color:var(--text);}
+    #flow .pipe-tab.active[data-pipe="i1"]{background:var(--i1);color:#0a0d14;border-color:var(--i1);font-weight:600;}
+    #flow .pipe-tab.active[data-pipe="i2"]{background:var(--i2);color:#fff;border-color:var(--i2);font-weight:600;}
+    #flow .pipe-tab.active[data-pipe="agb"]{background:var(--warn);color:#0a0d14;border-color:var(--warn);font-weight:600;}
+    #flow .pipe{display:none;animation:fadeUp 0.25s ease;}
+    #flow .pipe.active{display:block;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+    #flow .pipe-section-title{font-size:10.5px;text-transform:uppercase;letter-spacing:1.4px;
+      color:var(--muted);margin:22px 0 12px;padding:5px 12px;display:inline-block;
+      border:1px dashed var(--line);border-radius:6px;background:var(--panel-2);}
+    #flow .pipe-row{display:flex;gap:34px;align-items:stretch;flex-wrap:wrap;padding:12px 4px 18px;}
+    #flow .node{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+      padding:14px 16px 12px;min-width:140px;max-width:185px;cursor:pointer;position:relative;
+      transition:transform 0.18s, box-shadow 0.18s, border-color 0.18s;user-select:none;flex:1;}
+    #flow .node:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,0.4);}
+    #flow .node.i1:hover{border-color:var(--i1);box-shadow:0 8px 22px rgba(94,200,255,0.18);}
+    #flow .node.i2:hover{border-color:var(--i2);box-shadow:0 8px 22px rgba(167,139,250,0.18);}
+    #flow .node.agb:hover{border-color:var(--warn);box-shadow:0 8px 22px rgba(255,178,77,0.18);}
+    #flow .node.active{box-shadow:0 0 0 2px var(--accent),0 8px 22px rgba(0,0,0,0.4);
+      background:linear-gradient(180deg,var(--panel-2),var(--panel));}
+    #flow .node.i1.active{box-shadow:0 0 0 2px var(--i1),0 8px 22px rgba(94,200,255,0.25);}
+    #flow .node.i2.active{box-shadow:0 0 0 2px var(--i2),0 8px 22px rgba(167,139,250,0.25);}
+    #flow .node.agb.active{box-shadow:0 0 0 2px var(--warn),0 8px 22px rgba(255,178,77,0.25);}
+    #flow .node-num{position:absolute;top:-11px;left:-11px;width:25px;height:25px;border-radius:50%;
+      background:var(--accent);color:#0a0d14;display:flex;align-items:center;justify-content:center;
+      font-size:11.5px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.5);}
+    #flow .node.i1 .node-num{background:var(--i1);}
+    #flow .node.i2 .node-num{background:var(--i2);}
+    #flow .node.agb .node-num{background:var(--warn);}
+    #flow .node-title{font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:3px;line-height:1.25;}
+    #flow .node-sub{font-size:11.5px;color:var(--muted);line-height:1.4;}
+    #flow .node-tag{display:inline-block;font-size:9.8px;padding:2.5px 7px;border-radius:999px;
+      margin-top:7px;background:var(--panel-2);color:var(--text);border:1px solid var(--line);
+      letter-spacing:0.3px;}
+    #flow .node-tag.ok{color:var(--ok);border-color:var(--ok);}
+    #flow .node-tag.bad{color:var(--red);border-color:var(--red);}
+    #flow .node:not(:last-child)::after{content:"";position:absolute;right:-30px;top:50%;width:24px;height:2px;
+      background:linear-gradient(90deg,var(--accent),transparent);transform:translateY(-50%);opacity:0.7;}
+    #flow .node:not(:last-child)::before{content:"▶";position:absolute;right:-13px;top:50%;
+      transform:translateY(-50%);font-size:13px;color:var(--accent);z-index:1;}
+    #flow .node.i1:not(:last-child)::after{background:linear-gradient(90deg,var(--i1),transparent);}
+    #flow .node.i1:not(:last-child)::before{color:var(--i1);}
+    #flow .node.i2:not(:last-child)::after{background:linear-gradient(90deg,var(--i2),transparent);}
+    #flow .node.i2:not(:last-child)::before{color:var(--i2);}
+    #flow .node.agb:not(:last-child)::after{background:linear-gradient(90deg,var(--warn),transparent);}
+    #flow .node.agb:not(:last-child)::before{color:var(--warn);}
+    #flow .pipe-banner{background:linear-gradient(135deg,rgba(255,107,107,0.12),rgba(255,178,77,0.06));
+      border:1px dashed var(--red);border-radius:8px;padding:12px 16px;margin:12px 0 8px;font-size:13px;color:var(--text);}
+    #flow .pipe-banner b{color:var(--red);}
+    #flow .pipe-banner.warn{background:linear-gradient(135deg,rgba(255,178,77,0.10),rgba(167,139,250,0.06));border-color:var(--warn);}
+    #flow .pipe-banner.warn b{color:var(--warn);}
+    #flow .pipe-converge{display:flex;justify-content:center;align-items:center;padding:6px 0 4px;
+      color:var(--muted);font-size:11.5px;gap:10px;font-style:italic;}
+    #flow .pipe-converge::before,#flow .pipe-converge::after{content:"";height:1px;flex:1;
+      background:linear-gradient(90deg,transparent,var(--line),transparent);}
+    #flow .nd-overlay{background:var(--panel);border:1px solid var(--accent);border-radius:11px;
+      padding:18px 22px;margin:24px 0 8px;min-height:120px;transition:border-color 0.2s;}
+    #flow .nd-overlay.i1{border-color:var(--i1);}
+    #flow .nd-overlay.i2{border-color:var(--i2);}
+    #flow .nd-overlay.agb{border-color:var(--warn);}
+    #flow .nd-overlay h3{margin:0 0 4px;font-size:16px;color:var(--accent);}
+    #flow .nd-overlay.i1 h3{color:var(--i1);}
+    #flow .nd-overlay.i2 h3{color:var(--i2);}
+    #flow .nd-overlay.agb h3{color:var(--warn);}
+    #flow .nd-meta{font-size:11.5px;color:var(--muted);margin-bottom:11px;
+      font-family:ui-monospace,Consolas,monospace;}
+    #flow .nd-body{font-size:13.5px;color:var(--text);line-height:1.65;}
+    #flow .nd-body code{background:var(--panel-2);padding:1.5px 6px;border-radius:4px;font-size:12px;
+      font-family:ui-monospace,Consolas,monospace;}
+    #flow .legend-mini{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);
+      margin:6px 0 10px;}
+    @media (max-width:760px){
+      #flow .pipe-row{gap:18px;}
+      #flow .node:not(:last-child)::after,#flow .node:not(:last-child)::before{display:none;}
+      #flow .node{max-width:none;}
+    }
+  </style>
+
+  <h2>Flujo de Trabajo Interactivo</h2>
+  <p class="lead">Click en cualquier nodo para ver detalle completo (script, parámetros, resultados). Cambia entre pipelines con las pestañas.</p>
+
+  <div class="pipe-tabs">
+    <button class="pipe-tab active" data-pipe="i1">Informe 1</button>
+    <button class="pipe-tab" data-pipe="i2">Informe 2</button>
+    <button class="pipe-tab" data-pipe="agb">Ejercicio AGB</button>
+  </div>
+  <div class="legend-mini">
+    <span><span class="dot" style="background:var(--i1)"></span>Informe 1 — Sentinel-2 / RF / seca</span>
+    <span><span class="dot" style="background:var(--i2)"></span>Informe 2 — SAR + CARICOMP + Fusión</span>
+    <span><span class="dot" style="background:var(--warn)"></span>AGB — banda L vs banda C</span>
+  </div>
+
+  <!-- ── INFORME 1 ── -->
+  <div class="pipe active" id="pipe-i1">
+    <div class="pipe-section-title" style="border-color:var(--i1);color:var(--i1)">Sentinel-2 SR · Random Forest · Temporada Seca · 2020-2023</div>
+    <div class="pipe-row">
+      <div class="node i1" data-title="AOI · Ciénaga Grande de Santa Marta" data-meta="SHP CGAM/AOI_CGSM.shp · WGS84" data-body="Polígono operacional <b>5 053 km²</b> heredado y validado contra cartografía SIGMA/INVEMAR. Cubre el complejo lagunar completo incluyendo Pajarales y SFF CGSM (Ma14+Ma16+Ma17+Ma18, 285 km²)."><span class="node-num">1</span><div class="node-title">AOI</div><div class="node-sub">CGSM · 5 053 km²</div></div>
+      <div class="node i1" data-title="Sentinel-2 SR Harmonized" data-meta="COPERNICUS/S2_SR_HARMONIZED" data-body="Filtrado por AOI, fecha (<b>dic-mar de cada año 2020-2023</b>) y CLOUDY_PIXEL_PERCENTAGE &lt; 20%. Resolución nativa <b>10 m</b>. Bandas <code>B2</code>-<code>B12</code>."><span class="node-num">2</span><div class="node-title">Sentinel-2 SR</div><div class="node-sub">Harmonized 10 m</div></div>
+      <div class="node i1" data-title="Preprocesamiento — 4 máscaras" data-meta="QA60 + s2cloudless + DEM + NDWI + NDVI" data-body="<b>1.</b> Filtrado de nubes con <code>QA60</code> + s2cloudless.<br><b>2.</b> Enmascaramiento por elevación SRTM (descartar &gt;20 m).<br><b>3.</b> Máscara cuerpos de agua (NDWI dinámico).<br><b>4.</b> Máscara cobertura vegetal mínima (NDVI threshold)."><span class="node-num">3</span><div class="node-title">Preprocesamiento</div><div class="node-sub">4 máscaras</div></div>
+      <div class="node i1" data-title="Composite mediano anual" data-meta="ee.ImageCollection.median()" data-body="Reducción mediana sobre stack temporal filtrado. Genera <b>un composite anual por año</b> (2020, 2021, 2022, 2023) robusto a píxeles individuales contaminados por nubes residuales o speckle."><span class="node-num">4</span><div class="node-title">Composite</div><div class="node-sub">mediano anual</div></div>
+      <div class="node i1" data-title="Bandas derivadas" data-meta="NDVI · NDBaI · altura dosel proxy" data-body="<b>NDVI</b> = (B8 - B4) / (B8 + B4) — vigor vegetal.<br><b>NDBaI</b> = (B11 - B12) / (B11 + B12) — bare-soil index, sensible a degradación.<br><b>Altura dosel proxy</b> derivada del DEM canopy.<br><br>Las bandas SWIR <code>B11</code> y <code>B12</code> son la clave para distinguir intacto/degradado."><span class="node-num">5</span><div class="node-title">Bandas derivadas</div><div class="node-sub">NDVI · NDBaI · dosel</div></div>
+      <div class="node i1" data-title="Random Forest 300 árboles · 3 clases" data-meta="ee.Classifier.smileRandomForest(300)" data-body="<b>371 puntos</b> etiquetados manualmente en 3 clases:<br>• <i>Manglar intacto</i>: B8 &gt; 0.25, B11 &lt; 0.15<br>• <i>Manglar degradado</i>: B8 &lt; 0.15, B11 &lt; 0.05<br>• <i>No-manglar</i>: agua, suelo, otros usos<br><br>Split <b>70/30</b> train/test."><span class="node-num">6</span><div class="node-title">Random Forest</div><div class="node-sub">300 árboles · 3 clases</div></div>
+      <div class="node i1" data-title="Output · Métricas Informe 1" data-meta="4 rasters .tif anuales + matriz confusión" data-body="<b>Accuracy global:</b> 98.5%<br><b>Kappa:</b> 0.978<br><b>Cobertura manglar:</b> +14.9% entre 2020-2023<br><br><b>Outputs:</b> 4 rasters categóricos a 10 m, exportados a Assets para uso en Informe 2 vía <code>Export_Informe1_Rasters_a_Assets.js</code>."><span class="node-num">7</span><div class="node-title">Output</div><div class="node-sub">acc 98.5% · κ 0.978</div><span class="node-tag ok">+14.9% cobertura</span></div>
+    </div>
+  </div>
+
+  <!-- ── INFORME 2 ── -->
+  <div class="pipe" id="pipe-i2">
+    <div class="pipe-banner">
+      <b>Limitaciones del Informe 1 que motivan el Informe 2:</b><br>
+      ① Validación únicamente espectral (sin estructura forestal de campo)<br>
+      ② Temporada lluviosa (abr-nov) no cubierta — saturación de nubes en S2
+    </div>
+
+    <div class="pipe-section-title" style="border-color:var(--i2);color:var(--i2)">Componente A · SAR temporada lluviosa</div>
+    <div class="pipe-row">
+      <div class="node i2" data-title="Sentinel-1 GRD" data-meta="COPERNICUS/S1_GRD · IW · VV+VH" data-body="Órbita ascendente. <b>Temporada lluviosa abr-nov</b> de cada año 2020-2023. Penetra nubes — único sensor viable para esta ventana ciega del óptico."><span class="node-num">1</span><div class="node-title">Sentinel-1 GRD</div><div class="node-sub">VV+VH lluviosa</div></div>
+      <div class="node i2" data-title="Composite VV/VH" data-meta="median() · Lee 5×5 implícito" data-body="Reducción mediana por año-temporada. Filtrado de speckle implícito en GRD pre-procesado por ESA."><span class="node-num">2</span><div class="node-title">Composite SAR</div><div class="node-sub">VV+VH median</div></div>
+      <div class="node i2" data-title="RF SAR estática · 4 versiones iterativas" data-meta="CGSM_SAR_Lluviosa_Clasificacion_v1..v4.js" data-body="Reentrenamiento con 4 clases (No-manglar/Degradado/Regular/Intacto). Iteración v1→v4 buscando mejorar separabilidad SAR.<br><br><b>Resultado:</b> acc ~30%, Kappa ≈ 0 negativo en cinco configuraciones probadas. La banda C falla como descriptor estático del estado del dosel."><span class="node-num">3</span><div class="node-title">RF SAR estática</div><div class="node-sub">4 clases · v1-v4</div><span class="node-tag bad">acc ~30% · falla</span></div>
+      <div class="node i2" data-title="Plan B · BFAST en series VH" data-meta="CGSM_BFAST_Analysis.R · series mensuales 2020-2023" data-body="Análisis de <b>breakpoints</b> en R sobre series mensuales VH banda C, en 5 estaciones INVEMAR con buffers 150 m.<br><br><b>Hallazgo central:</b> breakpoints sincrónicos <b>Feb-May 2022</b> en 4/5 estaciones (Aguas Negras + Luna + 2 más). Anteceden la pérdida de cobertura registrada por la clasificación óptica del Informe 1 entre 2022 y 2023."><span class="node-num">4</span><div class="node-title">BFAST series VH</div><div class="node-sub">5 estaciones</div><span class="node-tag ok">breakpoints Feb-May 2022</span></div>
+    </div>
+
+    <div class="pipe-section-title" style="border-color:var(--i2);color:var(--i2)">Componente B · Validación CARICOMP in-situ</div>
+    <div class="pipe-row">
+      <div class="node i2" data-title="DwC-A CARICOMP" data-meta="dwca-caricomp-manglares · 1995-2021" data-body="<b>29 651 registros</b> Darwin Core Archive público (Beltrán et al. 2022; Espinosa Díaz et al. 2023). Cinco estaciones permanentes en CGSM con serie 26 años: <b>Rinconada, Aguas Negras, Caño Grande, Luna, Km22</b>."><span class="node-num">1</span><div class="node-title">DwC-A CARICOMP</div><div class="node-sub">29 651 reg · 1995-2021</div></div>
+      <div class="node i2" data-title="Procesamiento AB y densidad" data-meta="proceso_caricomp.py" data-body="Procesa registros DwC-A en tablas:<br>• <code>CARICOMP_estacion_anio.csv</code> — área basal (BA m²/ha) y densidad (ind/ha)<br>• <code>CARICOMP_estacion_anio_especie.csv</code> — desglose por especie (input para IVI)<br><br><b>Hallazgos clave del flanco occidental:</b><br>• <b>Luna:</b> AB ↓67% entre 2015-2017<br>• <b>Km22:</b> densidad ↓92% entre 2015-2018<br><br>Ambos eventos in-situ <b>anteceden y predicen</b> la pérdida óptica registrada en el Informe 1 entre 2022-2023."><span class="node-num">2</span><div class="node-title">AB · densidad · IVI</div><div class="node-sub">por estación-año</div><span class="node-tag bad">colapso Luna+Km22</span></div>
+      <div class="node i2" data-title="Buffers 150m INVEMAR" data-meta="CGSM_Extraccion_Estaciones_Buffer150m_v1..v3.js" data-body="Buffers de 150 m de radio alrededor de cada estación INVEMAR — captura ~7×7 píxeles S2 a 10 m. Suficiente para promediar ruido sin diluir representatividad espacial de la parcela CARICOMP (~10×10 m).<br><br>Output: píxeles S2 4-clases por estación-año (<code>CGSM_S2_4clases_estaciones_*.csv</code>)."><span class="node-num">3</span><div class="node-title">Buffers 150m</div><div class="node-sub">extracción S2</div></div>
+    </div>
+
+    <div class="pipe-converge">↓ Componentes A y B convergen en la Fusión ↓</div>
+
+    <div class="pipe-section-title" style="border-color:var(--i2);color:var(--i2)">Componente C · Fusión multisensor S2 ⨁ S1</div>
+    <div class="pipe-row">
+      <div class="node i2" data-title="Fusión S2 (seca) ⨁ S1 (lluviosa)" data-meta="CGSM_Fusion_S2_S1_4clases.js" data-body="Combinación lógica de la clasificación S2 seca con S1 lluviosa.<br><br>La cuarta clase (<i>Regular</i>) emerge naturalmente del cruce — corresponde a manglar inundable estacionalmente, información ecológica que ningún sensor solo puede capturar."><span class="node-num">1</span><div class="node-title">Fusión S2⨁S1</div><div class="node-sub">4 clases derivadas</div></div>
+      <div class="node i2" data-title="Análisis derivado" data-meta="CGSM_Fusion_4clases_Analisis_Derivado.js" data-body="<b>Outputs cuantitativos:</b><br>• <code>CGSM_Fusion_areas_clase_anio.csv</code> — áreas por clase × año (CGSM completo)<br>• <code>CGSM_Fusion_areas_Pajarales.csv</code> — sub-AOI focal<br>• <code>CGSM_Fusion_cambio_2020_2023.csv</code> — matriz de cambio<br>• <code>CGSM_Fusion_thumbnail_2020-2023.tif</code> — 4 thumbnails anuales<br><br><b>Cambio neto 2020-2023:</b> mejora 1 180 km² · degradación 737 km² · sin cambio 4 376 km² (71.5%)."><span class="node-num">2</span><div class="node-title">Áreas + cambio</div><div class="node-sub">CSVs + TIFs</div></div>
+      <div class="node i2" data-title="Comparación óptico ↔ SAR" data-meta="CGSM_Comparacion_Optico_SAR.js + Analisis_CSV_SAR_Validacion.ipynb" data-body="Mapas de concordancia/discordancia entre clasificación S2-seca y S1-lluviosa + métricas de acuerdo + interpretación dual.<br><br>Cruce con <code>Indicador_serie_historica_ICAM.xlsx</code> (calidad agua INVEMAR) y los Informes <b>REDCAM 2021/2022/2023</b> para contexto interpretativo de los breakpoints SAR."><span class="node-num">3</span><div class="node-title">Concordancia</div><div class="node-sub">+ ICAM + REDCAM</div></div>
+      <div class="node i2" data-title="Output · Insumo Digital Twin" data-meta="Tesis Maestría Geomática" data-body="<b>Resultados cuantitativos 2020-2023 (CGSM completo):</b><br>• Mejora neta: <b>+443 km²</b><br>• Mejora total: 1 180 km²<br>• Degradación: 737 km²<br>• Sin cambio: 4 376 km² (71.5%)<br><br><b>Recomendación:</b> insumo para el componente de <b>alerta temprana</b> del Digital Twin propuesto como tesis. La fusión multisensor mejora la robustez del monitoreo y captura cambios estructurales (BFAST) que el snapshot estático no detecta."><span class="node-num">4</span><div class="node-title">Output Digital Twin</div><div class="node-sub">+443 km² neto</div><span class="node-tag ok">tesis</span></div>
+    </div>
+  </div>
+
+  <!-- ── AGB ── -->
+  <div class="pipe" id="pipe-agb">
+    <div class="pipe-banner warn">
+      <b>Hipótesis (derivada del Informe 2):</b> ¿La banda L de ALOS-2 PALSAR-2 (23 cm de longitud de onda, penetra dosel completo) supera a la banda C de Sentinel-1 para estimar AGB de manglar en CGSM, dado que Cornforth et al. (2013) lo documentó en los Sundarbans?
+    </div>
+    <div class="pipe-section-title" style="border-color:var(--warn);color:var(--warn)">Tres iteraciones · Spatial Thoughts AGB tutorial adaptado a CGSM</div>
+    <div class="pipe-row">
+      <div class="node agb" data-title="Iteración 1 · Baseline GEDI" data-meta="AGB_RF_GEE_CGSM.ipynb" data-body="Replicación directa del tutorial Spatial Thoughts (Gandhi 2024). Random Forest estándar sobre puntos <b>GEDI L4A</b> como referencia de AGB. Sin máscara de manglar previa al muestreo."><span class="node-num">1</span><div class="node-title">Iter 1 · Baseline</div><div class="node-sub">GEDI L4A</div></div>
+      <div class="node agb" data-title="Iteración 2 · K-Fold + máscara manglar" data-meta="AGB_RF_GEE_CGSM_iter2.ipynb · 3000 muestras · 200 árboles" data-body="<b>Mejoras introducidas:</b><br>• Máscara de manglar previa al muestreo<br>• <b>3 000 muestras</b> (vs default tutorial)<br>• <b>200 árboles</b><br>• <b>K-Fold 5 pliegues</b> para validación<br><br><b>Resultado:</b> RMSE = <b>42.87 ± 14.02 Mg/Ha</b>. Importancia de variables se distribuye sin que ningún sensor SAR domine."><span class="node-num">2</span><div class="node-title">Iter 2 · K-Fold</div><div class="node-sub">RMSE 42.87 Mg/Ha</div></div>
+      <div class="node agb" data-title="Iteración 3 · INVEMAR + Spearman" data-meta="AGB_RF_GEE_CGSM_iter3.ipynb · DwC-A INVEMAR ICTbm" data-body="Reemplaza GEDI por <b>14 parcelas estructurales</b> del DwC-A INVEMAR ICTbm. AGB derivado por <b>allometría de Komiyama (2005)</b>.<br><br>Dada la pequeñez muestral (n=14), se cambia RF por <b>correlación Spearman univariada</b> sensor por sensor."><span class="node-num">3</span><div class="node-title">Iter 3 · Spearman</div><div class="node-sub">14 parcelas INVEMAR</div></div>
+      <div class="node agb" data-title="Conclusiones · Hipótesis refutada" data-meta="ALOS-2 PALSAR-2 banda L vs Sentinel-1 banda C" data-body="<b>Las tres iteraciones convergen en una conclusión:</b><br>• Banda L y banda C salen <b>empatadas</b> — ningún SAR mostró correlación significativa con AGB de campo.<br>• <b>Pendiente local del DEM domina</b> con Spearman <b>0.78</b> — proxy de drenaje y aporte fluvial, NO elevación absoluta (CGSM es plana).<br>• Bandas visibles S2 quedan en segundo lugar.<br><br><b>Por qué falló banda L:</b> biomasa CGSM ~50 Mg/Ha está bajo el rango óptimo SAR (100-400 Mg/Ha). En este régimen, la ventaja teórica de mayor longitud de onda se diluye. Además, ALOS-2 yearly aporta un solo mosaico anual mientras S1 promedia decenas de pasadas — favorece la SNR de banda C."><span class="node-num">4</span><div class="node-title">Hipótesis refutada</div><div class="node-sub">L = C · DEM domina</div><span class="node-tag ok">Spearman 0.78</span></div>
+    </div>
+  </div>
+
+  <div class="nd-overlay" id="nd-overlay">
+    <h3 id="nd-title">Click un nodo para ver detalles</h3>
+    <div class="nd-meta" id="nd-meta">Cada paso del pipeline tiene script asociado, parámetros y resultados clave.</div>
+    <div class="nd-body" id="nd-body" style="color:var(--muted)">Selecciona cualquier paso del flujo arriba.</div>
+  </div>
+
+  <script>
+    (function(){
+      const tabs = document.querySelectorAll('#flow .pipe-tab');
+      const pipes = document.querySelectorAll('#flow .pipe');
+      tabs.forEach(t => t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        pipes.forEach(p => p.classList.remove('active'));
+        document.getElementById('pipe-' + t.dataset.pipe).classList.add('active');
+        const ov = document.getElementById('nd-overlay');
+        ov.classList.remove('i1','i2','agb');
+        ov.classList.add(t.dataset.pipe);
+        document.querySelectorAll('#flow .node').forEach(n => n.classList.remove('active'));
+        document.getElementById('nd-title').textContent = 'Click un nodo para ver detalles';
+        document.getElementById('nd-meta').textContent = 'Cada paso tiene script, parámetros y resultados.';
+        const body = document.getElementById('nd-body');
+        body.innerHTML = 'Selecciona cualquier paso del flujo arriba.';
+        body.style.color = 'var(--muted)';
+      }));
+      document.querySelectorAll('#flow .node').forEach(n => {
+        n.addEventListener('click', () => {
+          document.querySelectorAll('#flow .node').forEach(x => x.classList.remove('active'));
+          n.classList.add('active');
+          const kind = n.classList.contains('i1') ? 'i1' : n.classList.contains('i2') ? 'i2' : 'agb';
+          const ov = document.getElementById('nd-overlay');
+          ov.classList.remove('i1','i2','agb');
+          ov.classList.add(kind);
+          document.getElementById('nd-title').textContent = n.dataset.title;
+          document.getElementById('nd-meta').textContent = n.dataset.meta || '';
+          const body = document.getElementById('nd-body');
+          body.innerHTML = n.dataset.body;
+          body.style.color = 'var(--text)';
+          ov.scrollIntoView({behavior:'smooth', block:'nearest'});
+        });
+      });
+    })();
+  </script>
+</section>
+
+<!-- ════════════════ I1 RESUMEN ════════════════ -->
+<section id="i1-resumen">
+  <h2 class="i1">Informe 1 — Resumen y Hallazgos <span class="pill">Replicación Kotikot et al. (2024)</span></h2>
+  <p class="lead">"Adapting a Google Earth Engine Random Forest workflow for mangrove mapping in a turbid tropical lagoon: a replication study at Ciénaga Grande de Santa Marta, Colombia"</p>
+
+  <h3>Objetivo</h3>
+  <div class="card i1">Replicar la metodología de Kotikot et al. (2024) aplicando Random Forest sobre Sentinel-2 SR Harmonized para generar clasificaciones anuales de cobertura de manglar a 10 m de resolución en CGSM, periodo 2020-2023, con distinción <b>manglar intacto</b> vs <b>manglar degradado</b> mediante reflectancia espectral en NIR (B8) y SWIR (B11, B12).</p>
+
+  <h3>Hallazgos principales</h3>
+  <div class="finding"><b>Exactitud global 98.5%</b> · Kappa 0.978 — clasificación supervisada con 371 puntos manuales sobre composite mediano de temporada seca.</div>
+  <div class="finding"><b>+14.9% cobertura total de manglar entre 2020 y 2023</b> — incremento neto, consistente con recuperación parcial documentada por Ibarra et al. (2014) tras la mortalidad masiva de los 90.</div>
+  <div class="finding"><b>La distinción intacto/degradado es viable con S2 si las bandas SWIR se incorporan</b> — B11 y B12 aportan separabilidad espectral clave en dosel estresado.</div>
+  <div class="finding warn"><b>Limitación 1: validación solo espectral</b> — no hubo cruce con datos de estructura forestal (área basal, densidad), lo que pone en duda la interpretabilidad ecológica.</div>
+  <div class="finding warn"><b>Limitación 2: temporada lluviosa no cubierta</b> — saturación de nubes impide composites medianos confiables Abr-Nov, por lo que la serie es ciega a 7 meses del año.</div>
+
+  <h3>Contribución metodológica destacada</h3>
+  <div class="card">El uso combinado de B8 (NIR) + B11 (SWIR1) + altura de dosel proxy permite separar las tres clases manteniendo accuracy >98% incluso en lagunas turbias tropicales — adaptación exitosa de un workflow originalmente probado en África Oriental.</div>
+</section>
+
+<!-- ════════════════ I1 METODO ════════════════ -->
+<section id="i1-metodo">
+  <h2 class="i1">Informe 1 — Metodología paso a paso</h2>
+
+  <div class="step" data-n="1"><h5>Definición del AOI</h5>
+    <div class="meta">Polígono operacional CGSM · 5 053 km² · WGS84 · `SHP CGAM/AOI_CGSM.shp`</div>
+    <p>Heredado y validado contra cartografía SIGMA/INVEMAR. Cubre el complejo lagunar completo incluyendo Pajarales y SFF CGSM.</p></div>
+
+  <div class="step" data-n="2"><h5>Adquisición Sentinel-2 SR</h5>
+    <div class="meta">Colección · COPERNICUS/S2_SR_HARMONIZED · GEE</div>
+    <p>Filtrado por AOI, fecha (temporada seca dic-mar de cada año 2020-2023) y CLOUDY_PIXEL_PERCENTAGE &lt; 20%.</p></div>
+
+  <div class="step" data-n="3"><h5>Preprocesamiento</h5>
+    <p>• Filtrado de nubes con <code>QA60</code> + s2cloudless. <br>• Enmascaramiento por elevación (DEM SRTM, descartar &gt;20 m). <br>• Máscara cuerpos de agua (NDWI dinámico). <br>• Máscara cobertura vegetal mínima (NDVI threshold).</p></div>
+
+  <div class="step" data-n="4"><h5>Composite mediano anual</h5>
+    <p>Reducción <code>median()</code> sobre stack temporal filtrado. Resolución nativa 10 m.</p></div>
+
+  <div class="step" data-n="5"><h5>Cálculo de bandas derivadas</h5>
+    <p>• <b>NDVI</b> = (B8 - B4) / (B8 + B4) <br>• <b>NDBaI</b> = (B11 - B12) / (B11 + B12) (Bare-soil index, sensible a degradación) <br>• <b>Altura de dosel proxy</b> derivada del DEM canopy.</p></div>
+
+  <div class="step" data-n="6"><h5>Etiquetado de entrenamiento</h5>
+    <div class="meta">371 puntos · 3 clases · etiquetado manual sobre alta resolución</div>
+    <p>Manglar intacto / manglar degradado / no-manglar (agua, suelo expuesto, otros usos).</p></div>
+
+  <div class="step" data-n="7"><h5>Entrenamiento Random Forest</h5>
+    <div class="meta">ee.Classifier.smileRandomForest(numberOfTrees=300)</div>
+    <p>Inputs: bandas originales B2-B12 + NDVI + NDBaI + altura dosel.</p></div>
+
+  <div class="step" data-n="8"><h5>Clasificación anual</h5>
+    <p>Aplicación del clasificador entrenado sobre los 4 composites anuales (2020, 2021, 2022, 2023). Outputs: 4 rasters categóricos a 10 m.</p></div>
+
+  <div class="step" data-n="9"><h5>Validación</h5>
+    <p>Split 70/30 train/test sobre los 371 puntos · matriz de confusión · accuracy global · Kappa · accuracies por clase.</p>
+    <span class="tag ok">acc 98.5%</span><span class="tag ok">Kappa 0.978</span></div>
+
+  <div class="step" data-n="10"><h5>Análisis multitemporal</h5>
+    <p>Cuantificación de áreas por clase y año. Mapas de cambio. Tabla de transiciones. Reporte de ganancia/pérdida neta.</p>
+    <span class="tag">+14.9% manglar 2020-2023</span></div>
+</section>
+
+<!-- ════════════════ I1 DATA ════════════════ -->
+<section id="i1-data">
+  <h2 class="i1">Informe 1 — Datos y Scripts</h2>
+
+  <h3>Datos de entrada</h3>
+  <table>
+    <tr><th>Recurso</th><th>Fuente</th><th>Uso</th></tr>
+    <tr><td><code>COPERNICUS/S2_SR_HARMONIZED</code></td><td>GEE Public</td><td>Imágenes ópticas multitemporales</td></tr>
+    <tr><td>SRTM DEM</td><td>USGS/NASA</td><td>Máscara elevación + altura dosel proxy</td></tr>
+    <tr><td><code>SHP CGAM/AOI_CGSM.shp</code></td><td>Cartografía propia</td><td>AOI 5 053 km²</td></tr>
+    <tr><td>371 puntos etiquetados</td><td>Etiquetado manual</td><td>Train/test RF</td></tr>
+  </table>
+
+  <h3>Notebooks y scripts</h3>
+  <table>
+    <tr><th>Archivo</th><th>Propósito</th></tr>
+    <tr><td><code>GEE/Tutorial32_CGSM.ipynb</code></td><td>Tutorial 32 adaptado a CGSM (geemap)</td></tr>
+    <tr><td><code>INFORME 1 COD.txt</code></td><td>Código GEE consolidado del Informe 1 (referencia)</td></tr>
+    <tr><td><code>Quintero_Informe1.docx/.pdf</code></td><td>Documento entregable final</td></tr>
+    <tr><td><code>Quintero_Recuperacion1.pdf</code></td><td>Versión recuperación</td></tr>
+    <tr><td><code>Correcciones_Informe1.md</code></td><td>Respuestas a evaluador (resumen corregido, 98.5% acc)</td></tr>
+  </table>
+
+  <h3>Outputs</h3>
+  <ul>
+    <li>4 rasters de clasificación anual (2020-2023) → exportados a Assets para Informe 2</li>
+    <li>Tabla áreas por clase y año</li>
+    <li>Mapas de cambio 2020↔2023</li>
+    <li>Matriz de confusión + métricas</li>
+  </ul>
+
+  <h3>Réplica complementaria — Milà et al. (2024)</h3>
+  <div class="card">Como verificación del marco de validación cruzada espacial / Area of Applicability adoptado, se replicó parcialmente en Python el ejercicio de Milà et al. (2024) sobre proxies espaciales en Random Forest (casos PM2.5 y temperatura del aire en estaciones de España).</div>
+  <table>
+    <tr><th>Notebook</th><th>Caso</th></tr>
+    <tr><td><code>RF_spatial_proxies/RF_spatial_proxies_pm25.ipynb</code></td><td>Réplica RF PM2.5 España (local)</td></tr>
+    <tr><td><code>RF_spatial_proxies/RF_spatial_proxies_pm25_colab.ipynb</code></td><td>Versión Colab</td></tr>
+    <tr><td><code>RF_spatial_proxies/RF_spatial_proxies_temp.ipynb</code></td><td>Réplica RF temperatura aire España</td></tr>
+    <tr><td><code>RF_spatial_proxies/RF_spatial_proxies_temp_colab.ipynb</code></td><td>Versión Colab</td></tr>
+    <tr><td><code>carlesmila-RF-spatial-proxies-d9e300b/R/case/*.R</code></td><td>11 scripts R originales (case_extract, case_modpm25, case_modtemp, case_prepare, case_RFsp, sim_*)</td></tr>
+  </table>
+</section>
+
+<!-- ════════════════ I2 RESUMEN ════════════════ -->
+<section id="i2-resumen">
+  <h2 class="i2">Informe 2 — Resumen y Hallazgos <span class="pill">Detección de cambio · BFAST Monitor · Alerta temprana Digital Twin</span></h2>
+
+  <!-- HERO ─ hallazgo central ───────────────── -->
+  <div class="card" style="background:linear-gradient(135deg,#0e3d2f,#0e1a3d);border:2px solid var(--ok);padding:18px 22px;margin:14px 0 18px 0">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="font-size:48px;line-height:1">🛰️</div>
+      <div style="flex:1;min-width:260px">
+        <div style="font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--ok);font-weight:700;margin-bottom:4px">Hallazgo central</div>
+        <div style="font-size:18px;font-weight:700;line-height:1.4">BFAST Monitor detectó la pérdida de manglar en Aguas Negras <span style="color:var(--ok)">6 meses ANTES</span> que el reporte oficial del INVEMAR.</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">Primera alerta del modelo: <b>Abr 2022</b> (1.73 dB, magnitud máxima del conjunto). Reporte INVEMAR ITF 2023: pérdida del 33 % del arbolado durante Oct 2022 - Sep 2023. La detección satelital se adelantó a la cadena de monitoreo de campo.</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="lead">El componente A del proyecto intentó clasificar el estado del manglar (intacto / regular / degradado) combinando Sentinel-2 + Sentinel-1, pero <b>cinco pruebas independientes</b> mostraron que ese enfoque no funciona con la banda C de SAR. En lugar de descartar los datos SAR, el informe <b>cambió la pregunta</b>: en vez de preguntar <i>qué estado tiene el manglar hoy</i>, pregunta <i>cuándo ocurrió un cambio</i>. La misma banda C que falla para clasificar sí detecta el momento exacto del cambio con magnitudes entre 0.35 y 1.73 dB, usando el algoritmo canónico <code>bfast::bfastmonitor</code> (Verbesselt et al. 2012).</p>
+
+  <h3>Objetivos específicos</h3>
+  <ol>
+    <li>Construir series mensuales de retrodispersión VH sobre las 5 estaciones CARICOMP entre 2020 y 2023, y aplicar BFAST Monitor (período histórico 2020-2021, monitoreo 2022-2023, significancia α = 0.05).</li>
+    <li>Acompañar con bootstrap CI95 (300 iteraciones) sobre los residuales del componente armónico-estacional (Verbesselt et al. 2010).</li>
+    <li>Comparar la fecha y magnitud (dB) de las primeras alertas con el reporte INVEMAR ITF 2023, que cuantifica la pérdida del 33 % del arbolado en Aguas Negras entre Oct 2022 y Sep 2023.</li>
+  </ol>
+
+  <h3>4 hallazgos del Resumen</h3>
+  <div class="finding"><b>(i) Cambio detectado en las 5 estaciones</b> entre abril 2022 y octubre 2023, con magnitudes 0.35-1.73 dB (equivale a +8 % a +49 % de retrodispersión VH). El orden temporal cuenta una historia: ANE (Abr) → LUN+RIN (May) → KM22 (Ago) → CGE (Oct del año siguiente).</div>
+  <div class="finding ok"><b>(ii) Caso Aguas Negras: alerta 6 meses antes del INVEMAR ITF 2023</b> — el satélite detectó el cambio antes que el ciclo de muestreo en terreno. Justo el caso de uso que un sistema de alerta temprana debe resolver.</div>
+  <div class="finding"><b>(iii) Bootstrap CI95: robusto en 4 de 5 estaciones</b> — la probabilidad de no detectar breakpoint queda entre 0.000 y 0.080 en ANE, KM22, LUN y RIN; solo es marginal en CGE (0.930). La fecha exacta del breakpoint sí es inestable (intervalos 18-31 meses), pero la existencia del cambio es sólida.</div>
+  <div class="finding"><b>(iv) Nueva métrica de validación</b> — el Kappa de Cohen sobre clase estructural CARICOMP daba -0.137 (intervalo de confianza incluye cero). En su lugar se usa el <b>tiempo de detección</b>: cuántos meses pasan entre el evento real y la primera alerta del modelo. Es más directo de leer para los gestores y más robusto al desbalance del ground truth.</div>
+
+  <h3>Tabla 1 — Primera alerta BFAST Monitor por estación</h3>
+
+  <!-- BARRAS DE MAGNITUD ─────────────────────── -->
+  <div class="card" style="padding:14px 18px;background:#0f141d">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Magnitud del cambio (dB) por estación · ordenadas por fecha de alerta</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <!-- ANE -->
+      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
+        <div><b>Aguas Negras</b></div>
+        <div style="color:var(--red);font-weight:700">Abr 2022</div>
+        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden;position:relative">
+          <div style="width:100%;height:100%;background:linear-gradient(90deg,var(--red),#ff8a65);display:flex;align-items:center;padding-left:8px;color:white;font-weight:700;font-size:12px">1.73 dB · +49 %</div>
+        </div>
+        <div style="color:var(--muted);font-size:11px">magnitud máx</div>
+      </div>
+      <!-- LUN -->
+      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
+        <div>Luna</div>
+        <div style="color:var(--warn)">May 2022</div>
+        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden">
+          <div style="width:50%;height:100%;background:var(--warn);display:flex;align-items:center;padding-left:8px;color:#1a1a1a;font-weight:700;font-size:12px">0.86 dB · +22 %</div>
+        </div>
+        <div></div>
+      </div>
+      <!-- RIN -->
+      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
+        <div>Rinconada</div>
+        <div style="color:var(--warn)">May 2022</div>
+        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden">
+          <div style="width:23%;height:100%;background:#7e9cbf;display:flex;align-items:center;padding-left:8px;color:white;font-weight:700;font-size:12px">0.40 dB · +10 %</div>
+        </div>
+        <div style="color:var(--muted);font-size:11px">marginal</div>
+      </div>
+      <!-- KM22 -->
+      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
+        <div>Km22</div>
+        <div style="color:var(--warn)">Ago 2022</div>
+        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden">
+          <div style="width:66%;height:100%;background:#e89a3c;display:flex;align-items:center;padding-left:8px;color:#1a1a1a;font-weight:700;font-size:12px">1.15 dB · +30 %</div>
+        </div>
+        <div></div>
+      </div>
+      <!-- CGE -->
+      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
+        <div>Caño Grande</div>
+        <div style="color:var(--muted)">Oct 2023</div>
+        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden">
+          <div style="width:20%;height:100%;background:#6a7a8e;display:flex;align-items:center;padding-left:8px;color:white;font-weight:700;font-size:12px">0.35 dB · +8 %</div>
+        </div>
+        <div style="color:var(--muted);font-size:11px">tardía</div>
+      </div>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:10px;border-top:1px solid #1a2030;padding-top:8px">
+      Período histórico 2020-2021 · monitoreo 2022-2023 · α = 0.05 · modelo armónico orden 2. La direccionalidad positiva del cambio indica VH por encima del modelo histórico (cambios de inundación, exposición de superficies tronco-agua o cambios en humedad foliar durante El Niño 2022-2023).
+    </div>
+  </div>
+
+  <h3>Tabla 2 — Bootstrap CI95 sobre los breakpoints (300 iteraciones)</h3>
+  <table>
+    <tr><th>Estación</th><th>Breakpoint (año dec.)</th><th>IC 95% bootstrap</th><th>Amplitud (m)</th><th>P(sin BP)</th></tr>
+    <tr><td>Aguas Negras</td><td>2021.42</td><td>[2020.92, 2022.42]</td><td>18.0</td><td><span class="tag ok">0.000</span></td></tr>
+    <tr><td>Caño Grande</td><td>2020.58</td><td>no estable</td><td>—</td><td><span class="tag bad">0.930</span></td></tr>
+    <tr><td>Km22</td><td>2022.33</td><td>[2020.83, 2022.67]</td><td>22.0</td><td><span class="tag ok">0.000</span></td></tr>
+    <tr><td>Luna</td><td>2021.42</td><td>[2020.75, 2023.08]</td><td>28.0</td><td><span class="tag ok">0.000</span></td></tr>
+    <tr><td>Rinconada</td><td>2021.08</td><td>[2020.67, 2023.25]</td><td>31.0</td><td><span class="tag">0.080</span></td></tr>
+  </table>
+
+  <h3>Tabla 3 — Validación tiempo de detección contra eventos documentados INVEMAR</h3>
+  <table>
+    <tr><th>Estación</th><th>Evento documentado</th><th>Fecha del evento</th><th>Tiempo de detección</th></tr>
+    <tr><td><b>Aguas Negras</b></td><td>Pérdida 33% arbolado (INVEMAR ITF 2023)</td><td>Oct 2022 – Sep 2023</td><td><span class="tag ok"><b>6 meses ANTES</b> del inicio</span></td></tr>
+    <tr><td>Luna</td><td>Colapso 2017 + dinámica bidireccional</td><td>2017 + recurrencia</td><td>Reorganización post-colapso</td></tr>
+    <tr><td>Rinconada</td><td>Sin perturbación documentada</td><td>Estabilidad</td><td>Respuesta climática (0.40 dB, marginal)</td></tr>
+    <tr><td>Km22</td><td>Pérdida sostenida 2015-2018 (crónica)</td><td>Continuo desde 2015</td><td>Empeoramiento del patrón crónico</td></tr>
+    <tr><td>Caño Grande</td><td>Recuperación parcial 2018-2021</td><td>Sin evento agudo</td><td>Cambio tardío débil (0.35 dB)</td></tr>
+  </table>
+
+  <h3>Componente A — 5 pruebas que motivaron la reformulación (Anexos E, F, G, I, J)</h3>
+  <table>
+    <tr><th>Anexo</th><th>Prueba</th><th>Hallazgo cuantitativo</th></tr>
+    <tr><td>E</td><td>Sensibilidad a unidad de validación (5 estaciones reubicadas vs 15 parcelas DwC-A)</td><td>Concordancia 22%, Kappa = -0.137 [IC95 -0.234, -0.049] sobre 90 obs</td></tr>
+    <tr><td>F</td><td>Autocorrelación espacial residual del RF reentrenado</td><td>Moran I = 0.351, p = 0.010; variograma ≈ 8 km</td></tr>
+    <tr><td>G</td><td>Sensibilidad a percentiles BA que definen las clases</td><td>Concordancia 40-50%, Kappa entre +0.05 y +0.18, IC95 incluye cero en los 4 esquemas</td></tr>
+    <tr><td>I</td><td>Area of Applicability sobre AOI 5 053 km²</td><td><b>63.2%</b> del AOI fuera del envoltorio; importancia SAR = 0</td></tr>
+    <tr><td>J</td><td>Comparación RF vs GPBoost OvR con proceso gaussiano</td><td>RF kappa = -0.224, GPBoost kappa = -0.389 en 4 clases</td></tr>
+  </table>
+  <p class="lead" style="font-size:13px"><b>Consecuencia:</b> la banda C tiene límites estructurales para responder la pregunta de estado del manglar. La reformulación hacia detección de cambio temporal aprovecha lo que la banda C sí puede hacer.</p>
+
+  <h3>Estaciones CARICOMP analizadas (5)</h3>
+  <table>
+    <tr><th>Código</th><th>Estación</th><th>Lat / Lon (WGS84)</th><th>Período monitoreo</th><th>Evento clave INVEMAR</th></tr>
+    <tr><td>ANE</td><td>Aguas Negras</td><td>10.8097 / -74.6079</td><td>1998-2021</td><td><span class="tag bad">-33% arbolado 2022-23</span></td></tr>
+    <tr><td>CGE</td><td>Caño Grande</td><td>10.8636 / -74.4816</td><td>1995-2021</td><td><span class="tag ok">+17.3% BA (recuperación 2018-21)</span></td></tr>
+    <tr><td>KM22</td><td>Km22</td><td>10.9774 / -74.5767</td><td>1995-2021</td><td><span class="tag bad">-92% densidad 2015-18</span></td></tr>
+    <tr><td>LUN</td><td>Luna</td><td>10.9075 / -74.5882</td><td>2000-2021</td><td><span class="tag bad">-87% BA en 2017</span></td></tr>
+    <tr><td>RIN</td><td>Rinconada</td><td>10.9632 / -74.4919</td><td>1995-2021</td><td><span class="tag">Estabilidad 1995-2024</span></td></tr>
+  </table>
+
+  <h3>Galería de figuras del Informe 2</h3>
+  <p class="lead" style="font-size:13px">Click en cualquier imagen para abrirla en tamaño completo. Las figuras se cargan desde <code>figuras/</code>.</p>
+
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0">
+    <a href="figuras/Fig0_area_estudio.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig0_area_estudio.png" style="width:100%;border-radius:4px;display:block" alt="Fig 0 área de estudio">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 0</b> · Área de estudio (3 paneles anidados)</div>
+    </a>
+    <a href="figuras/Fig_pipeline_bfast.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig_pipeline_bfast.png" style="width:100%;border-radius:4px;display:block" alt="Pipeline BFAST">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Pipeline BFAST</b> · Período histórico → monitoreo</div>
+    </a>
+    <a href="figuras/Fig_flujo_metodologico.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig_flujo_metodologico.png" style="width:100%;border-radius:4px;display:block" alt="Flujo metodológico">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Flujo metodológico</b> · Reformulación A → B</div>
+    </a>
+    <a href="figuras/Fig5_serie_temporal_CARICOMP.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig5_serie_temporal_CARICOMP.png" style="width:100%;border-radius:4px;display:block" alt="Serie CARICOMP">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 5</b> · Serie estructural CARICOMP 1995-2021</div>
+    </a>
+    <a href="figuras/Fig9_autocorrelacion_espacial.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig9_autocorrelacion_espacial.png" style="width:100%;border-radius:4px;display:block" alt="Moran I autocorrelación">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 9</b> · Moran I = 0.351, p = 0.010 (Anexo F)</div>
+    </a>
+    <a href="figuras/Fig10_AoA_mask_2023.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig10_AoA_mask_2023.png" style="width:100%;border-radius:4px;display:block" alt="AoA mask">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 10</b> · AoA mask 2023 · 63 % AOI fuera (Anexo I)</div>
+    </a>
+    <a href="figuras/Fig1_matrices_confusion.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig1_matrices_confusion.png" style="width:100%;border-radius:4px;display:block" alt="Matrices confusión">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 1</b> · Matrices de confusión RF estático</div>
+    </a>
+    <a href="figuras/Fig4_importancia_variables.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig4_importancia_variables.png" style="width:100%;border-radius:4px;display:block" alt="Importancia variables">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 4</b> · Importancia variables · SAR = 0</div>
+    </a>
+    <a href="figuras/Fig11_breakpoints_VH.png" target="_blank" class="card" style="padding:8px;text-decoration:none;border:2px solid var(--i2)">
+      <img src="figuras/Fig11_breakpoints_VH.png" style="width:100%;border-radius:4px;display:block" alt="Series VH con breakpoints BFAST Monitor">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 11</b> · Series VH mensuales + primera alerta BFAST Monitor + IC95 bootstrap · 5 estaciones</div>
+    </a>
+    <a href="figuras/Fig_REDCAM_salinidad_historica.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig_REDCAM_salinidad_historica.png" style="width:100%;border-radius:4px;display:block" alt="Salinidad REDCAM">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>REDCAM</b> · Salinidad histórica CGSM</div>
+    </a>
+    <a href="figuras/Fig3_errores_persistentes.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig3_errores_persistentes.png" style="width:100%;border-radius:4px;display:block" alt="Errores persistentes">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 3</b> · Errores persistentes del clasificador</div>
+    </a>
+  </div>
+
+  <div class="card" style="font-size:12.5px;color:var(--muted)">Tablas anexas E (n = 90), G (4 esquemas), I (DI por parcela), J (RF vs GPBoost), K (estructura CARICOMP 1995-2021), L (10 tablas del ejercicio crítico) en <code>data/</code></div>
+
+  <h3>Arquitectura propuesta para el Digital Twin (3 capas complementarias)</h3>
+
+  <!-- ARQUITECTURA VISUAL 3 CAPAS ────────────── -->
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0">
+    <div class="card" style="padding:14px;background:linear-gradient(180deg,#1a2030,#0f141d);border-left:4px solid var(--ok)">
+      <div style="font-size:24px;margin-bottom:6px">🗺️</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">Capa 1 — Cobertura básica</div>
+      <div style="font-size:12.5px;color:var(--muted)">Sentinel-2 anual · clasificación binaria <b>manglar / no-manglar</b>. Responde <i>cuánto manglar hay</i>.</div>
+    </div>
+    <div class="card" style="padding:14px;background:linear-gradient(180deg,#1a2030,#0f141d);border-left:4px solid var(--accent)">
+      <div style="font-size:24px;margin-bottom:6px">⚡</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">Capa 2 — Detección de cambio</div>
+      <div style="font-size:12.5px;color:var(--muted)">BFAST Monitor sobre series mensuales VH banda C · alerta temprana por píxel. Responde <i>cuándo cambió</i>.</div>
+    </div>
+    <div class="card" style="padding:14px;background:linear-gradient(180deg,#1a2030,#0f141d);border-left:4px solid var(--warn);opacity:.85">
+      <div style="font-size:24px;margin-bottom:6px">🔭</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">Capa 3 — Estructura (futuro)</div>
+      <div style="font-size:12.5px;color:var(--muted)">SAR banda L · ALOS-2 mientras esté disponible; NISAR cuando opere. Responde <i>cuál es la biomasa</i>.</div>
+    </div>
+  </div>
+
+  <div class="card" style="font-size:13px;color:var(--muted);margin-top:8px">
+    <b>Hipótesis sobre banda L (Anexo D):</b> la banda L (23 cm, penetra el dosel completo) podría superar el techo de la banda C. La iteración 3 con AGB allométrico INVEMAR sobre 14 parcelas dio HV banda L ρ = 0.024 y VH banda C ρ = 0.226 (ambos no significativos). El predictor más fuerte fue la <b>pendiente del DEM</b> (ρ = 0.78, p < 0.001), interpretable como proxy del régimen hidrológico.
+  </div>
+
+  <h3>Cómo entra BFAST Monitor al Digital Twin · 3 estrategias</h3>
+  <p class="lead">El Informe 2 entregó una prueba de concepto: BFAST Monitor sobre VH banda C en 5 estaciones. La integración al Digital Twin admite tres roles distintos para el mismo algoritmo, con consecuencias diferentes sobre lo que el gemelo puede prometer.</p>
+
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0">
+    <div class="card" style="padding:14px;border-left:4px solid #79c0ff">
+      <div style="font-size:22px;margin-bottom:6px">⚡</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">Opción 1 · Motor de alerta temprana</div>
+      <div style="font-size:12.5px;color:var(--muted)">BFAST Monitor por píxel sobre el cinturón completo del manglar a grilla 30 m, alimentado por series VH mensuales en tiempo cuasi-real. Mapa continuo de breakpoints que se refresca con cada escena Sentinel-1 nueva. La salida es una <b>capa viva del gemelo</b>, no un análisis puntual sobre 5 estaciones.</div>
+    </div>
+    <div class="card" style="padding:14px;border:2px solid var(--ok);background:linear-gradient(180deg,#0e3d2f,#0f141d)">
+      <div style="font-size:22px;margin-bottom:6px">🎯</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px;color:var(--ok)">Opción 2 · Validación cruzada multisensor <span style="font-size:10px;background:var(--ok);color:#06281c;padding:2px 7px;border-radius:10px;vertical-align:middle">RECOMENDADA</span></div>
+      <div style="font-size:12.5px;color:#cfe8df">BFAST Monitor en paralelo sobre VH banda C, HV banda L (ALOS-2) y NDVI Sentinel-2, comparando las fechas de breakpoint entre sensores para distinguir tres cambios diferentes: pérdida de biomasa estructural (banda L primero), pérdida de cobertura efectiva (óptico primero) y oscilación de humedad del dosel (banda C). El cambio se confirma cuando lo detectan <b>≥2 sensores con física complementaria</b>, no uno solo.</div>
+    </div>
+    <div class="card" style="padding:14px;border-left:4px solid #d2a8ff">
+      <div style="font-size:22px;margin-bottom:6px">🔬</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">Opción 3 · Validación de modelos supervisados</div>
+      <div style="font-size:12.5px;color:var(--muted)">Ajustar RF, GPBoost o redes para AGB o estado estructural y usar los breakpoints BFAST como <b>ground truth retrospectivo</b>: indican cuándo el modelo supervisado debió detectar un cambio de régimen. La inferencia estadística clásica (BFAST) actúa como verificación independiente del machine learning del gemelo.</div>
+    </div>
+  </div>
+
+  <div class="card" style="border:2px solid var(--ok);background:linear-gradient(135deg,#0e3d2f,#0e1a3d);padding:16px 20px">
+    <div style="font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--ok);font-weight:700;margin-bottom:6px">Por qué la Opción 2 es la columna vertebral</div>
+    <p style="font-size:13.5px;margin:0 0 8px 0">La validación cruzada multisensor <b>absorbe a las otras dos</b> y resuelve el punto que el Informe 2 dejó abierto: un solo régimen sensor-algoritmo (banda C + clasificación supervisada) no responde la pregunta de estado. La respuesta no es sustituir banda C por banda L, sino articular los tres sensores donde cada uno aporta capacidad real.</p>
+    <ul style="font-size:13px;margin:0 0 8px 22px;color:#cfe8df">
+      <li><b>Opción 1 queda absorbida</b> como interfaz del gemelo: el cinturón a 30 m se monitorea por píxel con el esquema multisensor, y la actualización cuasi-real es el producto final.</li>
+      <li><b>Opción 3 queda absorbida</b> como cierre de validación interna: los modelos supervisados se contrastan contra los breakpoints multisensor, lo que produce una métrica de coherencia entre la rama ML y la rama estadística clásica.</li>
+    </ul>
+    <p style="font-size:13.5px;margin:0">Tres rasgos que ninguna opción aislada defiende sola: <b>independencia física</b> entre los sensores que confirman el cambio, <b>independencia estadística</b> entre BFAST y los clasificadores supervisados, y <b>operatividad temporal real</b> (banda C aporta densidad temporal, banda L aporta significancia estructural).</p>
+  </div>
+</section>
+
+<!-- ════════════════ I2 METODO ════════════════ -->
+<section id="i2-metodo">
+  <h2 class="i2">Informe 2 — Metodología paso a paso</h2>
+
+  <h3>Componente A · Crítica del clasificador estático (5 pruebas convergentes)</h3>
+  <div class="step i2" data-n="1"><h5>Anexo E — Sensibilidad a la unidad de validación</h5>
+    <div class="meta">5 estaciones reubicadas → 15 parcelas DwC-A INVEMAR exactas (n = 90)</div>
+    <p>Concordancia 22.4%, Kappa = -0.137 [IC95 -0.234, -0.049]. La clase Regular nunca es asignada por el clasificador pese a estar en las 100 muestras de entrenamiento.</p></div>
+
+  <div class="step i2" data-n="2"><h5>Anexo F — Autocorrelación espacial residual</h5>
+    <div class="meta">Moran I global sobre residuales ordinales del RF reentrenado</div>
+    <p>Moran I = 0.351, p = 0.010, z = 2.606. Variograma esférico con rango ≈ 8 187 m (separación inter-estación). Los errores no se distribuyen como ruido aleatorio sino como conglomerados espaciales.</p>
+    <span class="tag bad">supuesto de independencia violado</span></div>
+
+  <div class="step i2" data-n="3"><h5>Anexo G — Sensibilidad a percentiles BA</h5>
+    <div class="meta">4 esquemas: P25/P75, P33/P66 (informe), Komiyama 30/80, P40/P60</div>
+    <p>Concordancia oscila 40-50%, Kappa entre +0.05 y +0.18. <b>IC95 incluye cero en los 4 esquemas</b>. La conclusión es invariante a la elección de umbrales razonable.</p></div>
+
+  <div class="step i2" data-n="4"><h5>Anexo I — Area of Applicability (Meyer & Pebesma 2021)</h5>
+    <div class="meta">Stack 18 bandas S2 dry + S1 wet 2023 sobre AOI 5 053 km²</div>
+    <p><b>63.2% del AOI fuera del envoltorio multivariado</b> de entrenamiento (umbral DI = 0.123). Importancia agregada: SAR Sentinel-1 = 0.0% en las 4 bandas (VV, VH, VV-VH, VH/VV).</p>
+    <span class="tag bad">fusión óptico-SAR es efectivamente óptica</span></div>
+
+  <div class="step i2" data-n="5"><h5>Anexo J — RF vs GPBoost con proceso gaussiano espacial</h5>
+    <div class="meta">564 muestras 4 clases · validación sobre 15 parcelas DwC-A</div>
+    <p>RF Kappa = -0.224 (3/15); GPBoost OvR Kappa = -0.389 (0/15). El cambio de algoritmo no rescata; sistema estructuralmente bimodal confirmado por Hansen GFC (cero candidatos Regular).</p>
+    <span class="tag bad">algoritmo espacial no resuelve el problema</span></div>
+
+  <h3>Componente B · BFAST Monitor (R canónico) — eje principal</h3>
+  <div class="step i2" data-n="6"><h5>Series mensuales VH agregadas</h5>
+    <div class="meta">Sentinel-1 GRD · IW · VH · órbita DESCENDING · buffer 150 m × 5 estaciones</div>
+    <p>Preprocesamiento: filtro speckle mediana focal 3×3, máscara de bordes VV < -30 dB, agregación temporal por mediana mensual. 48 observaciones por estación (Ene 2020 - Dic 2023).</p></div>
+
+  <div class="step i2" data-n="7"><h5>BFAST Monitor con período histórico móvil</h5>
+    <div class="meta"><code>bfast::bfastmonitor</code> (Verbesselt et al. 2012) · history = c(2020, 1) · start = c(2022, 1) · order = 2 · α = 0.05</div>
+    <p>Modelo armónico de segundo orden sobre ciclo anual. Estadístico OLS-MOSUM acumulado sobre los residuales del modelo histórico cruza el umbral asintótico al nivel de significancia.</p>
+    <span class="tag ok">breakpoints en las 5 estaciones</span><span class="tag ok">Abr 22 - Oct 23</span></div>
+
+  <div class="step i2" data-n="8"><h5>Bootstrap CI95 sobre breakpoints</h5>
+    <div class="meta"><code>bfast_bootstrap.py</code> · 300 iteraciones · resampleo de residuales · PELT con penalización BIC</div>
+    <p>Ajuste del modelo armónico sobre la serie completa, resampleo con reposición de residuales, suma al ajuste original, detección de breakpoint sobre cada réplica. IC95 = percentiles 2.5 y 97.5 de la distribución bootstrap.</p>
+    <span class="tag ok">presencia robusta en 4/5</span></div>
+
+  <h3>Componente C · Validación tiempo de detección contra INVEMAR ITF 2023</h3>
+  <div class="step i2" data-n="9"><h5>Cruce primera alerta BFAST × evento documentado</h5>
+    <div class="meta">CARICOMP 1995-2021 + INVEMAR ITF 2023 (Ibarra et al. 2014; INVEMAR 2024)</div>
+    <p>Tiempo de detección = diferencia en meses entre fecha del evento de campo y fecha del primer breakpoint del modelo. Tiempos negativos = detección anticipada.</p></div>
+
+  <div class="step i2" data-n="10"><h5>Caso Aguas Negras: validación con el evento real</h5>
+    <div class="meta">Evento: pérdida 33 % arbolado Oct 2022 - Sep 2023</div>
+    <p><b>Primera alerta BFAST: Abr 2022 (1.73 dB, magnitud máxima).</b> Detección 6 meses antes del inicio del período cuantificado por el reporte INVEMAR. El sistema de alerta del Digital Twin queda validado como detector independiente del ciclo de muestreo del programa CARICOMP.</p>
+    <span class="tag ok">alerta temprana validada</span></div>
+
+  <h3>Anexo D · Exploratorio AGB con SAR banda L (continuación)</h3>
+  <div class="step i2" data-n="11"><h5>Iteración 3 — AGB allométrico INVEMAR</h5>
+    <div class="meta">14 parcelas DwC-A · AGB por allometría Komiyama (2005) · Spearman univariada</div>
+    <p>HV banda L ρ = 0.024 (n.s.), VH banda C ρ = 0.226 (n.s.). Predictor más fuerte: <b>pendiente DEM ρ = 0.78, p < 0.001</b> — proxy del régimen hidrológico. Replicación rigurosa con escenas WBD multitemporales ASF Vertex queda como línea de continuación para el Digital Twin.</p></div>
+</section>
+
+<!-- ════════════════ I2 DATA ════════════════ -->
+<section id="i2-data">
+  <h2 class="i2">Informe 2 — Datos y Scripts</h2>
+
+  <h3>AOIs (Areas of Interest)</h3>
+  <table>
+    <tr><th>Archivo</th><th>Cobertura</th><th>Área</th></tr>
+    <tr><td><code>AOI/AOI_CGSM_grande_5053km2.geojson</code></td><td>CGSM completo</td><td>5 053 km²</td></tr>
+    <tr><td><code>AOI/AOI_CGSM_grande_inline.js</code></td><td>Versión inline GEE</td><td>—</td></tr>
+    <tr><td><code>AOI/AOI_Pajarales_Ma16.geojson</code></td><td>Complejo Pajarales (sector occidental SFF)</td><td>110.6 km²</td></tr>
+    <tr><td><code>AOI/AOI_Pajarales_Ma16_inline.js</code></td><td>Versión inline GEE</td><td>—</td></tr>
+    <tr><td><code>AOI/AOI_SFF_CGSM_completo.geojson</code></td><td>SFF CGSM (Ma14+Ma16+Ma17+Ma18)</td><td>285 km²</td></tr>
+    <tr><td><code>AOI/sectores_INVEMAR_CGSM.geojson</code></td><td>4 sectores SFF individuales</td><td>—</td></tr>
+  </table>
+
+  <h3>Scripts GEE JS (16 totales)</h3>
+  <table>
+    <tr><th>Script</th><th>Componente</th></tr>
+    <tr><td><code>Export_Informe1_Rasters_a_Assets.js</code></td><td>Setup — exporta outputs Informe 1 a Assets</td></tr>
+    <tr><td><code>CGSM_S2_Seca_Probabilities_3clases.js</code></td><td>S2 seca probabilidades 3 clases</td></tr>
+    <tr><td><code>CGSM_S2_Seca_Reentrenamiento_4clases.js</code></td><td>Reentrenamiento 4 clases</td></tr>
+    <tr><td><code>CGSM_SAR_Lluviosa_Clasificacion.js</code> (v1-v4)</td><td>4 versiones iterativas SAR</td></tr>
+    <tr><td><code>CGSM_Comparacion_Optico_SAR.js</code></td><td>Concordancia óptico↔SAR</td></tr>
+    <tr><td><code>CGSM_Extraccion_Estaciones_Buffer150m.js</code> (v1-v3)</td><td>3 versiones extracción CARICOMP</td></tr>
+    <tr><td><code>CGSM_Fusion_S2_S1_4clases.js</code></td><td>Fusión multisensor</td></tr>
+    <tr><td><code>CGSM_Fusion_4clases_Analisis_Derivado.js</code></td><td>Análisis post-fusión</td></tr>
+  </table>
+
+  <h3>Notebooks y scripts de análisis</h3>
+  <table>
+    <tr><th>Archivo</th><th>Ecosistema</th><th>Propósito</th></tr>
+    <tr><td><code>Informe_2/scripts/bfast_monitor.Rmd</code></td><td>R · bfast</td><td><b>Eje principal.</b> <code>bfastmonitor</code> canónico (Verbesselt 2012) con período histórico 2020-2021 y monitoreo 2022-2023, α = 0.05, orden 2. Outputs: <code>tabla_monitor.csv</code> con primera alerta y magnitud dB por estación.</td></tr>
+    <tr><td><code>Informe_2/scripts/bfast_monitor.py</code></td><td>Python · ruptures</td><td>Caracterización pragmática tipo BFASTlite como validación cruzada metodológica del Anexo H.</td></tr>
+    <tr><td><code>Informe_2/scripts/bfast_bootstrap.py</code></td><td>Python</td><td>Bootstrap CI95 sobre residuales del componente armónico-estacional (300 iteraciones, Verbesselt 2010). Output: <code>tabla_bootstrap.csv</code>.</td></tr>
+    <tr><td><code>Informe_2/scripts/compute_aoa.py</code></td><td>Python</td><td>Area of Applicability sobre stack 18 bandas en ventanas 1024×1024 (Anexo I). Outputs: <code>aoa_di_2023.tif</code>, <code>aoa_mask_2023.tif</code>, <code>aoa_thresholds.json</code>.</td></tr>
+    <tr><td><code>Informe_2/scripts/run_gpboost.py</code></td><td>Python · GPBoost</td><td>Comparación RF vs GPBoost OvR con proceso gaussiano espacial sobre 564 muestras (Anexo J).</td></tr>
+    <tr><td><code>Informe_2/scripts/proceso_caricomp.py</code></td><td>Python</td><td>DwC-A → AB y densidad por estación-año-especie. Outputs: <code>CARICOMP_estacion_anio*.csv</code>.</td></tr>
+  </table>
+
+  <h3>Series temporales para BFAST</h3>
+  <table>
+    <tr><th>Archivo</th><th>Sensor</th><th>Banda</th><th>Filas</th></tr>
+    <tr><td><code>ESTACIONES R/CGSM_NDVI_mensual_estaciones.csv</code></td><td>Sentinel-2</td><td>NDVI</td><td>240 (48 meses × 5 est)</td></tr>
+    <tr><td><code>ESTACIONES R/CGSM_NIR_mensual_estaciones.csv</code></td><td>Sentinel-2</td><td>NIR (B8)</td><td>240</td></tr>
+    <tr><td><code>ESTACIONES R/CGSM_SWIR_mensual_estaciones.csv</code></td><td>Sentinel-2</td><td>SWIR (B11)</td><td>240</td></tr>
+    <tr><td><code>ESTACIONES R/CGSM_VH_mensual_estaciones.csv</code></td><td>Sentinel-1</td><td><b>VH banda C</b> (input hipótesis)</td><td>235</td></tr>
+    <tr><td><code>ESTACIONES R/CGSM_VV_mensual_estaciones.csv</code></td><td>Sentinel-1</td><td>VV banda C</td><td>235</td></tr>
+  </table>
+
+  <h3>Datos de validación</h3>
+  <table>
+    <tr><th>Archivo</th><th>Contenido</th></tr>
+    <tr><td><code>dwca-caricomp-manglares/</code></td><td>DwC-A 29 651 registros 1995-2021</td></tr>
+    <tr><td><code>dwca-invemar_estructura_manglar-v1.0/</code></td><td>Estructura forestal INVEMAR</td></tr>
+    <tr><td><code>CARICOMP_estacion_anio.csv</code></td><td>AB y densidad por estación-año</td></tr>
+    <tr><td><code>CARICOMP_estacion_anio_especie.csv</code></td><td>Desglose por especie (input IVI)</td></tr>
+    <tr><td><code>CARICOMP_n_parcelas.csv</code></td><td>Conteo parcelas</td></tr>
+    <tr><td><code>csvs/CGSM_S2_4clases_estaciones_2020-2023.csv</code></td><td>Píxeles S2 por estación-año (4 archivos)</td></tr>
+    <tr><td><code>csvs/CGSM_SAR_Lluviosa_2020-2023_validacion.csv</code></td><td>Validación SAR (4 archivos)</td></tr>
+    <tr><td><code>Indicador_serie_historica_ICAM.xlsx</code></td><td>ICAM serie histórica calidad agua</td></tr>
+    <tr><td><code>Informe REDCAM 2021/2022/2023.pdf</code></td><td>Reportes oficiales REDCAM</td></tr>
+  </table>
+
+  <h3>Outputs</h3>
+  <ul>
+    <li>4 rasters fusion thumbnail (<code>CGSM_Fusion_thumbnail_2020-2023.tif</code>)</li>
+    <li>Tablas de áreas, cambio y validación (CSVs)</li>
+    <li><code>Informe_2_CGSM.pdf</code> — entregable final</li>
+    <li>Figuras en <code>Informe_2/figuras/</code></li>
+  </ul>
+
+  <h3>Anexos del Informe 2 (A–L) <span class="pill">documento complementario</span></h3>
+  <p class="lead">Los anexos A–L viven en <code>Informe_2_CGSM_Anexos.docx</code> dentro del repo. Documentan el material reproducible, las sensibilidades secundarias y el análisis exploratorio que sostienen el cuerpo principal sin saturarlo.</p>
+  <table>
+    <tr><th>Anexo</th><th>Tema</th><th>Hallazgo clave</th></tr>
+    <tr><td><b>A</b></td><td>Scripts y notebooks asociados</td><td>Inventario reproducible · 16 GEE JS + 6 Python/R</td></tr>
+    <tr><td><b>B</b></td><td>Datos auxiliares</td><td>AOI, sectores INVEMAR, REDCAM, ICAM, dwca</td></tr>
+    <tr><td><b>C</b></td><td>Validación cruzada espacial (replicación parcial Milà et al. 2024 en Python)</td><td>Tres lecciones para componente A · el RMSE de CV aleatoria sobreestima desempeño bajo autocorrelación · AoA debe acompañar todo mapa continuo</td></tr>
+    <tr><td><b>D</b></td><td>Banda C vs banda L (3 iteraciones AGB con GEDI L4A, WorldCover y 14 parcelas INVEMAR)</td><td>HV banda L ρ = 0.024 (n.s.), VH banda C ρ = 0.226 (n.s.) · pendiente DEM ρ = 0.78 (p &lt; 0.001) como proxy hidrológico · biomasa CGSM ~50 Mg/Ha bajo el rango óptimo SAR</td></tr>
+    <tr><td><b>E</b></td><td>Sensibilidad concordancia clase estructural × clase RF (15 parcelas × 6 años)</td><td>n = 90, concordancia 24.4 %, <b>Kappa = -0.137 [IC95 -0.234, -0.049]</b> · clase Regular nunca asignada · RIN-1 sistemáticamente Degradado vs RIN-2/3 Intacto</td></tr>
+    <tr><td><b>F</b></td><td>Autocorrelación espacial de residuales (Moran I + variograma esférico)</td><td><b>Moran I = 0.351, p = 0.010</b> · rango ≈ 8 187 m · nugget nulo · errores en conglomerados espaciales</td></tr>
+    <tr><td><b>G</b></td><td>Sensibilidad a percentiles BA (4 esquemas P25/P75, P33/P66, P40/P60, Komiyama 30/80)</td><td>Concordancia 40-50 %, <b>IC95 del kappa incluye cero en los 4 esquemas</b> · conclusión invariante a la elección de umbrales</td></tr>
+    <tr><td><b>H</b></td><td>BFAST Monitor + bootstrap CI95</td><td><b>Elevado al cuerpo principal</b> como §3.3.1, §3.3.2 y §3.3.3 · scripts <code>bfast_monitor.py</code> y <code>bfast_bootstrap.py</code></td></tr>
+    <tr><td><b>I</b></td><td>Area of Applicability completa (Meyer & Pebesma 2021) sobre stack 18 bandas, 471 muestras</td><td><b>63.2 % del AOI fuera</b> del envoltorio · DI umbral = 0.123 · las 4 bandas SAR S1 con importancia <b>= 0</b> · fusión óptico-SAR es efectivamente óptica</td></tr>
+    <tr><td><b>J</b></td><td>RF vs GPBoost OvR con proceso gaussiano espacial sobre 564 muestras (4 clases + 3 esquemas)</td><td><b>RF kappa = -0.224 · GPBoost kappa = -0.389</b> · bimodalidad Hansen confirmada (cero candidatos Regular en 50 000 puntos) · cambio de algoritmo no rescata</td></tr>
+    <tr><td><b>K</b></td><td>Datos de contexto: estaciones permanentes y monitoreo CARICOMP</td><td>Tabla K1 coordenadas DwC-A · Tabla K2 BA y densidad por estación-año 2015-2021 · sustrato empírico de §1-5 y anexos E, F, G, H, I, J</td></tr>
+    <tr><td><b>L</b></td><td>10 tablas detalladas del ejercicio crítico del componente A</td><td>L1 concordancia 45 % · L2-L4 áreas por clase y cambio 2020-2023 · L5-L8 SAR sola (OA 60-71 %, sobreestimación 2.45-3.46×) · L9-L10 acuerdo óptico-SAR sobre AOI y Pajarales</td></tr>
+  </table>
+</section>
+
+<!-- ════════════════ REPLICAS ════════════════ -->
+<section id="replicas">
+  <h2>Réplicas y Repositorios</h2>
+  <p class="lead">Tres réplicas metodológicas estructurales en el curso.</p>
+
+  <details open>
+    <summary>1 · Kotikot et al. (2024) — base del Informe 1</summary>
+    <p>RF + S2 para mapeo de manglar. Adaptado de África Oriental → CGSM con bandas SWIR para distinguir intacto/degradado.</p>
+    <ul>
+      <li><code>Kotikot et al. aportes percepcion remota GEE.docx</code></li>
+      <li><code>Guia_Replicacion_Kotikot2024_CGSM.docx</code></li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>2 · Milà et al. (2024) — validación cruzada espacial Anexo C Informe 2</summary>
+    <p>Replicación parcial en Python del paper sobre proxies espaciales en RF (casos PM2.5 y temperatura aire en España). Verifica el marco de validación adoptado para el Informe 2.</p>
+    <ul>
+      <li>Repo original: <code>carlesmila-RF-spatial-proxies-d9e300b/</code> (R · 11 scripts)</li>
+      <li>Réplicas Python: <code>RF_spatial_proxies/*.ipynb</code> (4 notebooks)</li>
+      <li>Datos: PM25_train.gpkg · PM25_stations.gpkg · predictors.tif · spain.dbf</li>
+      <li>Carlesmila & Meyer (referencia DOI repo)</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>3 · Spatial Thoughts AGB tutorial — ejercicio biomasa CGSM</summary>
+    <p>Estimación de Above-Ground Biomass con RF en GEE adaptado a CGSM. <b>3 iteraciones</b> corrigiendo limitaciones progresivas.</p>
+    <ul>
+      <li><code>AGB_RF_GEE_CGSM/AGB_RF_GEE_CGSM.ipynb</code> — iter 1</li>
+      <li><code>AGB_RF_GEE_CGSM/AGB_RF_GEE_CGSM_iter2.ipynb</code> — máscara manglar previa, 3000 muestras, K-Fold 5</li>
+      <li><code>AGB_RF_GEE_CGSM/AGB_RF_GEE_CGSM_iter3.ipynb</code> — 14 parcelas INVEMAR, allometría Komiyama et al. 2005, Spearman</li>
+      <li><code>AGB_RF_GEE_CGSM/Exposicion_AGB_CGSM.docx/.pdf/.md</code> — exposición</li>
+    </ul>
+    <h4>Hallazgos del ejercicio AGB</h4>
+    <div class="finding bad"><b>Banda L (ALOS-2) y banda C (S1) salen empatadas</b> — ningún SAR mostró correlación significativa con biomasa de campo. La hipótesis sobre superioridad de banda L NO se sostuvo.</div>
+    <div class="finding"><b>Pendiente local del DEM domina como predictor</b> — Spearman 0.78. Proxy de drenaje y aporte fluvial.</div>
+    <div class="finding warn"><b>Biomasa CGSM ≈ 50 Mg/Ha</b>, muy por debajo del rango óptimo SAR (100-400 Mg/Ha). En este régimen de baja biomasa, la ventaja teórica de banda L se diluye.</div>
+  </details>
+</section>
+
+<!-- ════════════════ ARTICULOS ════════════════ -->
+<section id="articulos">
+  <h2>Artículos Citados</h2>
+  <p class="lead">Bibliografía clave organizada por tema. Ubicada en <code>ARTICULOS/</code> y <code>LECTURAS/</code>.</p>
+
+  <h3>Detección de cambio temporal · BFAST (eje principal del Informe 2)</h3>
+  <p class="ref"><b>Verbesselt, Zeileis & Herold (2012)</b> — Near real-time disturbance detection using satellite image time series. <i>Remote Sensing of Environment</i> 123, 98–108. <code>bfast::bfastmonitor</code> · base canónica del eje principal del Informe 2.</p>
+  <p class="ref"><b>Verbesselt, Hyndman, Newnham & Culvenor (2010)</b> — Detecting trend and seasonal changes in satellite image time series. <i>Remote Sensing of Environment</i> 114(1), 106–115. Base del bootstrap CI95 sobre residuales del componente armónico-estacional.</p>
+
+  <h3>Validación espacial · Area of Applicability</h3>
+  <p class="ref"><b>Meyer & Pebesma (2021)</b> — Predicting into unknown space? Estimating the area of applicability of spatial prediction models. <i>Methods in Ecology and Evolution</i> 12(9), 1620–1633. Usado en el Anexo I (63 % del AOI fuera del envoltorio).</p>
+  <p class="ref"><b>Milà et al. (2024)</b> — Random forests with spatial proxies for environmental modelling. <i>Geoscientific Model Development</i>. Software v0.2.0 (Zenodo 11383045). Replicado en el Anexo C del Informe 2.</p>
+
+  <h3>Random Forest, boosting y modelos de árbol</h3>
+  <p class="ref"><b>Breiman (2001)</b> — Random Forests. <i>Machine Learning</i> 45, 5–32. Algoritmo base del clasificador estático.</p>
+  <p class="ref"><b>Sigrist (2020)</b> — Gaussian Process Boosting. arXiv:2004.02653 · <b>Sigrist (2021)</b> — Tree-Boosting for Spatial Data. GPBoost usado en el Anexo J como comparación con el RF.</p>
+  <p class="ref"><b>Chen & Guestrin (2016)</b> — XGBoost. <i>KDD</i> 785–794.</p>
+  <p class="ref"><b>Friedman (2001)</b> — Greedy Function Approximation: A Gradient Boosting Machine. <i>The Annals of Statistics</i> 29(5).</p>
+  <p class="ref">RF.pdf · Bagging_partB.pdf · Decision_Trees_B.pdf · LCC using Decision Trees (Inland Lakes 2026)</p>
+
+  <h3>Manglares y CGSM</h3>
+  <p class="ref"><b>Kotikot et al. (2024)</b> — Mangrove mapping with GEE Random Forest. Base del Informe 1.</p>
+  <p class="ref"><b>Giri et al. (2011)</b> — Status and distribution of mangrove forests of the world using Earth observation. <i>Global Ecology and Biogeography</i> 20(1) 154–159. Máscara canónica usada en muestreo de entrenamiento.</p>
+  <p class="ref"><b>Hansen et al. (2013)</b> — High-resolution global maps of 21st-century forest cover change. <i>Science</i> 342(6160), 850–853. Global Forest Change v1.12. Cobertura forestal treecover2000 y lossyear utilizados en los Anexos E y J para generar muestras Regular y Degradado sobre la máscara Giri. Cero candidatos Regular en 50 000 puntos confirma la bimodalidad estructural del manglar de la CGSM.</p>
+  <p class="ref"><b>Cornforth, Fatoyinbo, Freemantle & Pettorelli (2013)</b> — Advanced Land Observing Satellite Phased Array Type L-Band SAR (ALOS PALSAR) to Inform the Conservation of Mangroves: Sundarbans as a Case Study. <i>Remote Sensing</i> 5(1), 224–237. Justifica la hipótesis de banda L del Anexo D.</p>
+  <p class="ref"><b>Beltrán et al. (2022)</b> — Datos de monitoreo de la estructura de los manglares de la Ciénaga Grande de Santa Marta (Magdalena). INVEMAR DwC-A · DOI 10.15472/2poedl. Conjunto base de 29 651 registros 1995-2021.</p>
+  <p class="ref"><b>Espinosa Díaz et al. (2023)</b> — Monitoreo CARICOMP de manglares de la CGSM. Conjunto derivado del DOI 10.15472/2poedl.</p>
+  <p class="ref"><b>Ibarra et al. (2014)</b> — Monitoreo de las condiciones ambientales y los cambios estructurales y funcionales … Informe Técnico Final. INVEMAR, 140 pp. Mortalidad masiva y rehabilitación CGSM.</p>
+  <p class="ref"><b>INVEMAR (2024)</b> — Informe Técnico Final 2023 (197 pp). Documenta la pérdida del 33 % del arbolado en Aguas Negras durante Oct 2022 - Sep 2023. <a href="https://cgsm.cemarin.org/" target="_blank">cgsm.cemarin.org</a></p>
+  <p class="ref"><b>Komiyama, Poungparn & Kato (2005)</b> — Common allometric equations for estimating the tree weight of mangroves. <i>Journal of Tropical Ecology</i> 21(4) 471–477. Allometría usada en el Anexo D.</p>
+  <p class="ref"><b>Jaramillo et al. (2018)</b> — Alteración hidrológica CGSM · <b>Murillo-Sandoval et al. (2022)</b> — Cambio climático y CGSM.</p>
+  <p class="ref">Effects of Hydroclimatic Change and Rehabilitation Activities on Salinity and Mangroves CGSM · ENSO and interannual salinity changes in CGSM · A review of mangrove degradation assessment using remote sensing · Mangrove mapping and monitoring towards climate change resilience · 3D mapping of mangrove forests based on SRTM · DIAPOSITIVAS Manglares Caribeños.</p>
+
+  <h3>Sentinel-1, SAR y banda L</h3>
+  <p class="ref"><b>Copernicus (2014)</b> — Sentinel Data Legal Notice. ESA.</p>
+  <p class="ref">Fan et al. (2025) — SAR Doppler currents · Retrieval of Ocean Surface Currents by Synergistic Sentinel-1 and SWOT Data.</p>
+
+  <h3>Sentinel-2 y calidad de agua</h3>
+  <p class="ref">Sentinel 2 Analysis of Turbidity Patterns in a Coastal Lagoon</p>
+  <p class="ref">Monitoring chlorophyll a in Mar Menor coastal lagoon using ocean color sensors</p>
+  <p class="ref">Water_quality_assessment_in_a_wetland_co.pdf</p>
+  <p class="ref">GEE Nivel Básico — Composiciones a color, Índices Landsat-8, Índices S2, Tres índices vegetación</p>
+
+  <h3>Digital Twin y oceanografía operacional</h3>
+  <p class="ref">A Digital Twin Ocean — Coastal Ocean Forecasts using Marine Autonomy</p>
+  <p class="ref">Marine digital twins for enhanced ocean understanding</p>
+  <p class="ref">Exploring the Use of Data in a Digital Twin for the Coastal Ocean</p>
+  <p class="ref">Yu et al. (2024) — Coastal Zone Information Model (CZIM architecture)</p>
+  <p class="ref">Martin et al. (2025) — Data assimilation schemes for ocean forecasting state of the art</p>
+  <p class="ref">Satellite altimetry and operational oceanography from Jason-1 to SWOT</p>
+  <p class="ref">Advancements in Satellite Observations of Inland and Coastal Waters — Global Validation Network</p>
+  <p class="ref">Gemelo Digital 4D — Innovación en CGSM (excel)</p>
+
+  <h3>Apoyo metodológico</h3>
+  <p class="ref">Gandhi U. (2024) — Estimating AGB using RF in GEE — Spatial Thoughts (base ejercicio AGB)</p>
+  <p class="ref">Swaminathan et al. — Radiometric calibration of UAV multispectral images (Plant Phenome 2024)</p>
+  <p class="ref">PERCEPCION REMOTA Week 1-6 (slides curso)</p>
+  <p class="ref">Teledetección Principios Aplicaciones Futuro</p>
+  <p class="ref">Fundamentos de la percepción remota</p>
+</section>
+
+<!-- ════════════════ DECISIONES ════════════════ -->
+<section id="decisiones">
+  <h2>Decisiones Clave del Pipeline</h2>
+  <p class="lead">Por qué cada decisión metodológica — útil para defensa oral y respuesta a evaluador.</p>
+
+  <h3>Informe 1</h3>
+  <div class="card i1">
+    <h4 style="color:var(--i1)">¿Por qué Random Forest y no CNN/SVM?</h4>
+    <p style="font-size:13px;color:var(--muted)">Replicación fiel de Kotikot et al. (2024); RF tiene baja varianza con pocos puntos (371) y no requiere GPU. Trade-off: pierde contexto espacial vs CNN.</p>
+  </div>
+  <div class="card i1">
+    <h4 style="color:var(--i1)">¿Por qué temporada seca?</h4>
+    <p style="font-size:13px;color:var(--muted)">CGSM tiene cobertura de nubes saturada Abr-Nov (~70%+). Solo dic-mar permite composites medianos confiables con S2. Justifica la limitación que motivó el Informe 2.</p>
+  </div>
+  <div class="card i1">
+    <h4 style="color:var(--i1)">¿Por qué B11 y B12 son clave para intacto/degradado?</h4>
+    <p style="font-size:13px;color:var(--muted)">SWIR es sensible al contenido de agua foliar y celulosa. Manglar estresado pierde reflectancia diferencial en 1610 nm y 2190 nm — separabilidad espectral que el visible y NIR solos no capturan.</p>
+  </div>
+
+  <h3>Informe 2</h3>
+  <div class="card i2">
+    <h4 style="color:var(--i2)">¿Por qué reformular la pregunta hacia detección de cambio?</h4>
+    <p style="font-size:13px;color:var(--muted)">Cinco pruebas convergentes (Anexos E, F, G, I, J) establecieron que el régimen óptico-SAR banda C tiene límites para discriminar estado estructural instantáneo. Pero el mismo régimen sí responde con magnitudes 0.35-1.73 dB estadísticamente significativas a la pregunta de cambio temporal sobre línea base reciente. La reformulación no es retirada sino aprovechamiento dirigido de lo que la banda C sí puede hacer.</p>
+  </div>
+  <div class="card i2">
+    <h4 style="color:var(--i2)">¿Por qué BFAST Monitor (canónico R) y no BFAST estándar?</h4>
+    <p style="font-size:13px;color:var(--muted)">BFAST estándar detecta breakpoints sobre la serie completa de forma retrospectiva; BFAST Monitor (Verbesselt 2012) opera con período histórico fijo + monitoreo prospectivo, lo que produce alertas cercanas al evento físico. Esto es lo que necesita un Digital Twin: detección anticipada, no análisis post-mortem.</p>
+  </div>
+  <div class="card i2">
+    <h4 style="color:var(--i2)">¿Por qué el caso Aguas Negras valida el enfoque?</h4>
+    <p style="font-size:13px;color:var(--muted)">El reporte INVEMAR ITF 2023 documenta pérdida del 33% del arbolado en ANE durante Oct 2022 - Sep 2023. La primera alerta de bfastmonitor sobre la serie VH fue Abr 2022, <b>6 meses ANTES del inicio del período documentado</b>. Detección genuinamente anticipada, no contemporánea: el SAR detectó el cambio antes que el ciclo de muestreo de campo y antes que la publicación del reporte oficial.</p>
+  </div>
+  <div class="card i2">
+    <h4 style="color:var(--i2)">¿Por qué cambiar la métrica de validación de Kappa a tiempo de detección?</h4>
+    <p style="font-size:13px;color:var(--muted)">El Kappa de Cohen sobre clase estructural CARICOMP fue -0.137 [IC95 incluye cero] sobre 90 obs, métrica estadísticamente débil por desbalance del ground truth. El tiempo de detección entre evento real y primera alerta del modelo es: (1) directamente accionable por los gestores del SFF CGSM, (2) robusto al desbalance, (3) la métrica natural de un sistema de alerta temprana.</p>
+  </div>
+  <div class="card i2">
+    <h4 style="color:var(--i2)">¿Por qué CARICOMP y no solo INVEMAR?</h4>
+    <p style="font-size:13px;color:var(--muted)">CARICOMP es DwC-A público con 29 651 registros 1995-2021, cinco estaciones en CGSM. Permite retroceder ~25 años para definir línea base. INVEMAR ITF 2023 complementa con el evento crítico Aguas Negras 2022-2023.</p>
+  </div>
+  <div class="card i2">
+    <h4 style="color:var(--i2)">¿Por qué buffers de 150 m alrededor de estaciones?</h4>
+    <p style="font-size:13px;color:var(--muted)">Captura ~7×7 píxeles S2 a 10 m. Suficiente para promediar ruido sin diluir la representatividad espacial de la parcela CARICOMP (típicamente 10×10 m).</p>
+  </div>
+
+  <h3>Síntesis de los argumentos centrales</h3>
+  <div class="card">
+    <p style="font-size:13px"><b>Sobre los límites de la clasificación estática:</b> cinco pruebas independientes lo documentan (kappa -0.137 sobre 90 obs · Moran I = 0.351 · 63 % del AOI fuera del AoA · importancia SAR = 0 en RF y GPBoost · bimodalidad Hansen). La banda C tiene límites físicos, no es error del flujo.</p>
+    <p style="font-size:13px"><b>Sobre la capacidad de detección de BFAST Monitor:</b> el cambio temporal en VH (0.35-1.73 dB sobre 12-31 meses) es estadísticamente detectable sobre el ruido multiplicativo del speckle aun cuando las magnitudes instantáneas absolutas no permiten distinguir clases. Una analogía: el ojo humano no distingue dos fotos pero sí un video.</p>
+    <p style="font-size:13px"><b>Sobre la validación del Digital Twin:</b> el caso Aguas Negras 2022-23 se detectó 6 meses antes del INVEMAR ITF 2023, con la magnitud máxima del conjunto (1.73 dB) — coherente con que es la estación de mayor pérdida documentada. Caso central del trabajo.</p>
+    <p style="font-size:13px"><b>Sobre la exploración con banda L (Anexo D):</b> el ejercicio con 14 parcelas allométricas mostró que ninguna banda SAR alcanza significancia para AGB (HV-L ρ = 0.024 n.s., VH-C ρ = 0.226 n.s.). El predictor más fuerte fue la pendiente del DEM (ρ = 0.78, p < 0.001) — proxy del régimen hidrológico. La biomasa CGSM (~50 Mg/Ha) está bajo el rango óptimo SAR.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+const links = document.querySelectorAll("aside nav a");
+const sections = document.querySelectorAll("main section");
+function go(id) {
+  links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#"+id));
+  sections.forEach(s => s.classList.toggle("active", s.id === id));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+links.forEach(a => a.addEventListener("click", e => { e.preventDefault(); go(a.getAttribute("href").slice(1)); }));
+if (location.hash) go(location.hash.slice(1));
+</script>
+</body>
+</html>

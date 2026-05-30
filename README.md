@@ -1,13 +1,16 @@
 ﻿# Informe 2 — Detección de cambio estructural del manglar de la CGSM mediante BFAST Monitor
 
+[![Ver Dashboard HTML](https://img.shields.io/badge/Ver-Dashboard%20HTML-orange?logo=html5&logoColor=white)](https://htmlpreview.github.io/?https://github.com/linaq11/Informe_2/blob/main/dashboard-percepcion-remota.html)
+
 Componente A del curso de Percepción Remota, Maestría en Geomática, Universidad Nacional de Colombia.
 
-**Autor:** Lina María Quintero Fonseca · lquinterof@unal.edu.co
-**Fecha:** Mayo 2026
+- **Autor:** Lina María Quintero Fonseca · lquinterof@unal.edu.co
+- **Fecha:** Mayo 2026
 
 ## Estructura del repositorio
 
 - `Informe_2_CGSM.docx` / `.md` — documento principal
+- `dashboard-percepcion-remota.html` — tablero interactivo de resultados (abrir vía badge superior)
 - `scripts/` — pipelines Python (BFAST Monitor, AoA, GPBoost), scripts GEE de exportación, cuaderno R canónico de BFAST
 - `figuras/` — figuras del cuerpo y de los anexos
 - `data/` — outputs reproducibles (CSV, JSON, predicciones por parcela)
