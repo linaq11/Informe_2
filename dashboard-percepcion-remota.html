@@ -528,12 +528,22 @@
   <div class="finding"><b>(iv) Nueva métrica de validación</b> — el Kappa de Cohen sobre clase estructural CARICOMP daba -0.137 (intervalo de confianza incluye cero). En su lugar se usa el <b>tiempo de detección</b>: cuántos meses pasan entre el evento real y la primera alerta del modelo. Es más directo de leer para los gestores y más robusto al desbalance del ground truth.</div>
 
   <h3>Tabla 1 — Primera alerta BFAST Monitor por estación</h3>
+  <p style="font-size:12.5px;color:var(--muted);margin:4px 0 10px 0">Período histórico 2020-2021 · monitoreo 2022-2023 · α = 0.05 · modelo armónico orden 2. Filas ordenadas cronológicamente por fecha de primera alerta.</p>
+  <table>
+    <tr><th>Estación</th><th>Código</th><th>Primera alerta</th><th>Año decimal</th><th>Magnitud (dB)</th><th>Cambio VH</th></tr>
+    <tr><td><b>Aguas Negras</b></td><td>ANE</td><td><span style="color:var(--red);font-weight:700">Abr 2022</span></td><td>2022.250</td><td><b>1.73</b></td><td><span class="tag bad">+49 %</span></td></tr>
+    <tr><td>Luna</td><td>LUN</td><td>May 2022</td><td>2022.333</td><td>0.86</td><td><span class="tag warn">+22 %</span></td></tr>
+    <tr><td>Rinconada</td><td>RIN</td><td>May 2022</td><td>2022.333</td><td>0.40</td><td><span class="tag">+10 % marginal</span></td></tr>
+    <tr><td>Km22</td><td>KM22</td><td>Ago 2022</td><td>2022.583</td><td>1.15</td><td><span class="tag warn">+30 %</span></td></tr>
+    <tr><td>Caño Grande</td><td>CGE</td><td>Oct 2023</td><td>2023.750</td><td>0.35</td><td><span class="tag">+8 % tardía</span></td></tr>
+  </table>
+  <p style="font-size:12px;color:var(--muted);margin:6px 0 0 0">La direccionalidad positiva del cambio (VH por encima del modelo histórico) se asocia con cambios de inundación, exposición de superficies tronco-agua por apertura del dosel o cambios en humedad foliar durante el evento El Niño 2022-2023.</p>
 
-  <figure class="card" style="padding:12px;margin:10px 0;border:2px solid var(--i2)">
+  <figure class="card" style="padding:12px;margin:14px 0;border:2px solid var(--i2)">
     <a href="figuras/Fig11_breakpoints_VH.png" target="_blank">
       <img src="figuras/Fig11_breakpoints_VH.png" style="width:100%;border-radius:4px;display:block" alt="Series VH con breakpoints BFAST Monitor en 5 estaciones">
     </a>
-    <figcaption style="font-size:12.5px;color:var(--muted);margin-top:10px"><b>Figura 1.</b> Series mensuales de retrodispersión VH Sentinel-1 banda C en las cinco estaciones permanentes CARICOMP. Sombreado azul claro: período histórico 2020-2021. Sombreado amarillo claro: período de monitoreo 2022-2023. Línea roja vertical: primera alerta <code>bfast::bfastmonitor</code> (Verbesselt et al. 2012, α = 0.05). Sombra roja translúcida: IC95 bootstrap (300 iteraciones, Verbesselt et al. 2010). Anotación ΔdB: magnitud del cambio. Orden temporal: ANE Abr 2022 (1.73 dB · +49 %) → LUN May 2022 (0.86 dB · +22 %) → RIN May 2022 (0.40 dB · +10 %, marginal) → KM22 Ago 2022 (1.15 dB · +30 %) → CGE Oct 2023 (0.35 dB · +8 %, tardía). La direccionalidad positiva del cambio indica VH por encima del modelo histórico (cambios de inundación, exposición de superficies tronco-agua o cambios en humedad foliar durante El Niño 2022-2023).</figcaption>
+    <figcaption style="font-size:12.5px;color:var(--muted);margin-top:10px"><b>Figura 1.</b> Series mensuales de retrodispersión VH Sentinel-1 banda C en las cinco estaciones permanentes CARICOMP. Sombreado azul claro: período histórico 2020-2021. Sombreado amarillo claro: período de monitoreo 2022-2023. Línea roja vertical: primera alerta <code>bfast::bfastmonitor</code> (Verbesselt et al. 2012, α = 0.05). Sombra roja translúcida: IC95 bootstrap (300 iteraciones, Verbesselt et al. 2010). Anotación ΔdB: magnitud del cambio reportada en la Tabla 1.</figcaption>
   </figure>
 
   <h3>Tabla 2 — Bootstrap CI95 sobre los breakpoints (300 iteraciones)</h3>
@@ -669,20 +679,12 @@
 <section id="i2-metodo">
   <h2 class="i2">Informe 2 — Metodología paso a paso</h2>
 
-  <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin:10px 0">
-    <figure class="card" style="padding:10px;margin:0">
-      <a href="figuras/Fig_pipeline_bfast.png" target="_blank">
-        <img src="figuras/Fig_pipeline_bfast.png" style="width:100%;border-radius:4px;display:block" alt="Pipeline BFAST">
-      </a>
-      <figcaption style="font-size:12px;color:var(--muted);margin-top:8px"><b>Figura 2.</b> Pipeline metodológico: del producto Sentinel-1 GRD (01) a los productos finales (07), pasando por BFAST Monitor (04), bootstrap CI95 (05) y contraste frente a eventos INVEMAR ITF 2023 (06).</figcaption>
-    </figure>
-    <figure class="card" style="padding:10px;margin:0">
-      <a href="figuras/Fig_flujo_metodologico.png" target="_blank">
-        <img src="figuras/Fig_flujo_metodologico.png" style="width:100%;border-radius:4px;display:block" alt="Flujo metodológico A→B">
-      </a>
-      <figcaption style="font-size:12px;color:var(--muted);margin-top:8px"><b>Flujo metodológico.</b> Reformulación del componente A (clasificación estática descartada) hacia el componente B (BFAST Monitor sobre serie VH banda C).</figcaption>
-    </figure>
-  </div>
+  <figure class="card" style="padding:10px;margin:10px 0">
+    <a href="figuras/Fig_pipeline_bfast.png" target="_blank">
+      <img src="figuras/Fig_pipeline_bfast.png" style="width:100%;border-radius:4px;display:block" alt="Pipeline BFAST">
+    </a>
+    <figcaption style="font-size:12.5px;color:var(--muted);margin-top:8px"><b>Figura 2.</b> Pipeline metodológico: del producto Sentinel-1 GRD (01) a los productos finales (07), pasando por BFAST Monitor (04), bootstrap CI95 (05) y contraste frente a eventos INVEMAR ITF 2023 (06).</figcaption>
+  </figure>
 
   <h3>Componente A · Crítica del clasificador estático (5 pruebas convergentes)</h3>
   <div class="step i2" data-n="1"><h5>Anexo E — Sensibilidad a la unidad de validación</h5>
