@@ -131,6 +131,13 @@
     <div class="stat"><div class="n">2020-2023</div><div class="l">Serie temporal</div></div>
   </div>
 
+  <figure class="card" style="padding:10px;margin:14px 0">
+    <a href="figuras/Fig0_area_estudio.png" target="_blank">
+      <img src="figuras/Fig0_area_estudio.png" style="width:100%;border-radius:4px;display:block" alt="Área de estudio CGSM con AOI y 5 estaciones CARICOMP">
+    </a>
+    <figcaption style="font-size:12px;color:var(--muted);margin-top:8px"><b>Figura 0.</b> Área de estudio. (a) Departamento del Magdalena en Colombia. (b) Referencia urbana y delimitación del AOI. (c) AOI operacional de 5 053 km² con el polígono SFF CGSM (verde) y las cinco estaciones CARICOMP del INVEMAR (triángulos rojos). Coordenadas en WGS84.</figcaption>
+  </figure>
+
   <h3>Preguntas de investigación</h3>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0">
     <div class="card i1" style="border-left:4px solid var(--i1)">
@@ -522,60 +529,12 @@
 
   <h3>Tabla 1 — Primera alerta BFAST Monitor por estación</h3>
 
-  <!-- BARRAS DE MAGNITUD ─────────────────────── -->
-  <div class="card" style="padding:14px 18px;background:#0f141d">
-    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Magnitud del cambio (dB) por estación · ordenadas por fecha de alerta</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <!-- ANE -->
-      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
-        <div><b>Aguas Negras</b></div>
-        <div style="color:var(--red);font-weight:700">Abr 2022</div>
-        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden;position:relative">
-          <div style="width:100%;height:100%;background:linear-gradient(90deg,var(--red),#ff8a65);display:flex;align-items:center;padding-left:8px;color:white;font-weight:700;font-size:12px">1.73 dB · +49 %</div>
-        </div>
-        <div style="color:var(--muted);font-size:11px">magnitud máx</div>
-      </div>
-      <!-- LUN -->
-      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
-        <div>Luna</div>
-        <div style="color:var(--warn)">May 2022</div>
-        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden">
-          <div style="width:50%;height:100%;background:var(--warn);display:flex;align-items:center;padding-left:8px;color:#1a1a1a;font-weight:700;font-size:12px">0.86 dB · +22 %</div>
-        </div>
-        <div></div>
-      </div>
-      <!-- RIN -->
-      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
-        <div>Rinconada</div>
-        <div style="color:var(--warn)">May 2022</div>
-        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden">
-          <div style="width:23%;height:100%;background:#7e9cbf;display:flex;align-items:center;padding-left:8px;color:white;font-weight:700;font-size:12px">0.40 dB · +10 %</div>
-        </div>
-        <div style="color:var(--muted);font-size:11px">marginal</div>
-      </div>
-      <!-- KM22 -->
-      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
-        <div>Km22</div>
-        <div style="color:var(--warn)">Ago 2022</div>
-        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden">
-          <div style="width:66%;height:100%;background:#e89a3c;display:flex;align-items:center;padding-left:8px;color:#1a1a1a;font-weight:700;font-size:12px">1.15 dB · +30 %</div>
-        </div>
-        <div></div>
-      </div>
-      <!-- CGE -->
-      <div style="display:grid;grid-template-columns:130px 60px 1fr 70px;gap:10px;align-items:center;font-size:13px">
-        <div>Caño Grande</div>
-        <div style="color:var(--muted)">Oct 2023</div>
-        <div style="height:22px;background:#1a2030;border-radius:4px;overflow:hidden">
-          <div style="width:20%;height:100%;background:#6a7a8e;display:flex;align-items:center;padding-left:8px;color:white;font-weight:700;font-size:12px">0.35 dB · +8 %</div>
-        </div>
-        <div style="color:var(--muted);font-size:11px">tardía</div>
-      </div>
-    </div>
-    <div style="font-size:11.5px;color:var(--muted);margin-top:10px;border-top:1px solid #1a2030;padding-top:8px">
-      Período histórico 2020-2021 · monitoreo 2022-2023 · α = 0.05 · modelo armónico orden 2. La direccionalidad positiva del cambio indica VH por encima del modelo histórico (cambios de inundación, exposición de superficies tronco-agua o cambios en humedad foliar durante El Niño 2022-2023).
-    </div>
-  </div>
+  <figure class="card" style="padding:12px;margin:10px 0;border:2px solid var(--i2)">
+    <a href="figuras/Fig11_breakpoints_VH.png" target="_blank">
+      <img src="figuras/Fig11_breakpoints_VH.png" style="width:100%;border-radius:4px;display:block" alt="Series VH con breakpoints BFAST Monitor en 5 estaciones">
+    </a>
+    <figcaption style="font-size:12.5px;color:var(--muted);margin-top:10px"><b>Figura 1.</b> Series mensuales de retrodispersión VH Sentinel-1 banda C en las cinco estaciones permanentes CARICOMP. Sombreado azul claro: período histórico 2020-2021. Sombreado amarillo claro: período de monitoreo 2022-2023. Línea roja vertical: primera alerta <code>bfast::bfastmonitor</code> (Verbesselt et al. 2012, α = 0.05). Sombra roja translúcida: IC95 bootstrap (300 iteraciones, Verbesselt et al. 2010). Anotación ΔdB: magnitud del cambio. Orden temporal: ANE Abr 2022 (1.73 dB · +49 %) → LUN May 2022 (0.86 dB · +22 %) → RIN May 2022 (0.40 dB · +10 %, marginal) → KM22 Ago 2022 (1.15 dB · +30 %) → CGE Oct 2023 (0.35 dB · +8 %, tardía). La direccionalidad positiva del cambio indica VH por encima del modelo histórico (cambios de inundación, exposición de superficies tronco-agua o cambios en humedad foliar durante El Niño 2022-2023).</figcaption>
+  </figure>
 
   <h3>Tabla 2 — Bootstrap CI95 sobre los breakpoints (300 iteraciones)</h3>
   <table>
@@ -618,53 +577,32 @@
     <tr><td>RIN</td><td>Rinconada</td><td>10.9632 / -74.4919</td><td>1995-2021</td><td><span class="tag">Estabilidad 1995-2024</span></td></tr>
   </table>
 
-  <h3>Galería de figuras del Informe 2</h3>
-  <p class="lead" style="font-size:13px">Click en cualquier imagen para abrirla en tamaño completo. Las figuras se cargan desde <code>figuras/</code>.</p>
+  <figure class="card" style="padding:10px;margin:14px 0">
+    <a href="figuras/Fig5_serie_temporal_CARICOMP.png" target="_blank">
+      <img src="figuras/Fig5_serie_temporal_CARICOMP.png" style="width:100%;border-radius:4px;display:block" alt="Serie estructural CARICOMP 1995-2021 por estación">
+    </a>
+    <figcaption style="font-size:12px;color:var(--muted);margin-top:8px"><b>Figura 5.</b> Serie estructural CARICOMP 1995-2021 sobre las cinco estaciones permanentes. Área basal (BA) y densidad arbórea por estación-año. Sustrato empírico del Anexo K, base de los percentiles globales P33 = 35.3 m²/ha y P66 = 88.4 m²/ha que definen el esquema ordinal Intacto / Regular / Degradado.</figcaption>
+  </figure>
+
+  <h3>Galería complementaria</h3>
+  <p class="lead" style="font-size:13px">Material adicional del componente A y contexto ambiental. Las figuras principales (Fig 0, 1, 2, 3, 4, 5) están intercaladas con el texto arriba. Click para abrir en tamaño completo.</p>
 
   <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0">
-    <a href="figuras/Fig0_area_estudio.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig0_area_estudio.png" style="width:100%;border-radius:4px;display:block" alt="Fig 0 área de estudio">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 0</b> · Área de estudio (3 paneles anidados)</div>
-    </a>
-    <a href="figuras/Fig_pipeline_bfast.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig_pipeline_bfast.png" style="width:100%;border-radius:4px;display:block" alt="Pipeline BFAST">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Pipeline BFAST</b> · Período histórico → monitoreo</div>
-    </a>
-    <a href="figuras/Fig_flujo_metodologico.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig_flujo_metodologico.png" style="width:100%;border-radius:4px;display:block" alt="Flujo metodológico">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Flujo metodológico</b> · Reformulación A → B</div>
-    </a>
-    <a href="figuras/Fig5_serie_temporal_CARICOMP.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig5_serie_temporal_CARICOMP.png" style="width:100%;border-radius:4px;display:block" alt="Serie CARICOMP">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 5</b> · Serie estructural CARICOMP 1995-2021</div>
-    </a>
-    <a href="figuras/Fig9_autocorrelacion_espacial.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig9_autocorrelacion_espacial.png" style="width:100%;border-radius:4px;display:block" alt="Moran I autocorrelación">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 9</b> · Moran I = 0.351, p = 0.010 (Anexo F)</div>
-    </a>
-    <a href="figuras/Fig10_AoA_mask_2023.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig10_AoA_mask_2023.png" style="width:100%;border-radius:4px;display:block" alt="AoA mask">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 10</b> · AoA mask 2023 · 63 % AOI fuera (Anexo I)</div>
-    </a>
     <a href="figuras/Fig1_matrices_confusion.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
       <img src="figuras/Fig1_matrices_confusion.png" style="width:100%;border-radius:4px;display:block" alt="Matrices confusión">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 1</b> · Matrices de confusión RF estático</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Matrices de confusión RF estático</b> · diagnóstico cuantitativo del componente A</div>
     </a>
     <a href="figuras/Fig4_importancia_variables.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
       <img src="figuras/Fig4_importancia_variables.png" style="width:100%;border-radius:4px;display:block" alt="Importancia variables">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 4</b> · Importancia variables · SAR = 0</div>
-    </a>
-    <a href="figuras/Fig11_breakpoints_VH.png" target="_blank" class="card" style="padding:8px;text-decoration:none;border:2px solid var(--i2)">
-      <img src="figuras/Fig11_breakpoints_VH.png" style="width:100%;border-radius:4px;display:block" alt="Series VH con breakpoints BFAST Monitor">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 11</b> · Series VH mensuales + primera alerta BFAST Monitor + IC95 bootstrap · 5 estaciones</div>
-    </a>
-    <a href="figuras/Fig_REDCAM_salinidad_historica.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
-      <img src="figuras/Fig_REDCAM_salinidad_historica.png" style="width:100%;border-radius:4px;display:block" alt="Salinidad REDCAM">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>REDCAM</b> · Salinidad histórica CGSM</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Importancia de variables</b> · SAR = 0 (Anexo I)</div>
     </a>
     <a href="figuras/Fig3_errores_persistentes.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
       <img src="figuras/Fig3_errores_persistentes.png" style="width:100%;border-radius:4px;display:block" alt="Errores persistentes">
-      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Fig 3</b> · Errores persistentes del clasificador</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>Errores persistentes del clasificador</b> · patrón espacial sistemático</div>
+    </a>
+    <a href="figuras/Fig_REDCAM_salinidad_historica.png" target="_blank" class="card" style="padding:8px;text-decoration:none">
+      <img src="figuras/Fig_REDCAM_salinidad_historica.png" style="width:100%;border-radius:4px;display:block" alt="Salinidad REDCAM">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px"><b>REDCAM</b> · serie histórica de salinidad CGSM (contexto hidrológico)</div>
     </a>
   </div>
 
@@ -731,6 +669,21 @@
 <section id="i2-metodo">
   <h2 class="i2">Informe 2 — Metodología paso a paso</h2>
 
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin:10px 0">
+    <figure class="card" style="padding:10px;margin:0">
+      <a href="figuras/Fig_pipeline_bfast.png" target="_blank">
+        <img src="figuras/Fig_pipeline_bfast.png" style="width:100%;border-radius:4px;display:block" alt="Pipeline BFAST">
+      </a>
+      <figcaption style="font-size:12px;color:var(--muted);margin-top:8px"><b>Figura 2.</b> Pipeline metodológico: del producto Sentinel-1 GRD (01) a los productos finales (07), pasando por BFAST Monitor (04), bootstrap CI95 (05) y contraste frente a eventos INVEMAR ITF 2023 (06).</figcaption>
+    </figure>
+    <figure class="card" style="padding:10px;margin:0">
+      <a href="figuras/Fig_flujo_metodologico.png" target="_blank">
+        <img src="figuras/Fig_flujo_metodologico.png" style="width:100%;border-radius:4px;display:block" alt="Flujo metodológico A→B">
+      </a>
+      <figcaption style="font-size:12px;color:var(--muted);margin-top:8px"><b>Flujo metodológico.</b> Reformulación del componente A (clasificación estática descartada) hacia el componente B (BFAST Monitor sobre serie VH banda C).</figcaption>
+    </figure>
+  </div>
+
   <h3>Componente A · Crítica del clasificador estático (5 pruebas convergentes)</h3>
   <div class="step i2" data-n="1"><h5>Anexo E — Sensibilidad a la unidad de validación</h5>
     <div class="meta">5 estaciones reubicadas → 15 parcelas DwC-A INVEMAR exactas (n = 90)</div>
@@ -739,7 +692,13 @@
   <div class="step i2" data-n="2"><h5>Anexo F — Autocorrelación espacial residual</h5>
     <div class="meta">Moran I global sobre residuales ordinales del RF reentrenado</div>
     <p>Moran I = 0.351, p = 0.010, z = 2.606. Variograma esférico con rango ≈ 8 187 m (separación inter-estación). Los errores no se distribuyen como ruido aleatorio sino como conglomerados espaciales.</p>
-    <span class="tag bad">supuesto de independencia violado</span></div>
+    <span class="tag bad">supuesto de independencia violado</span>
+    <figure style="margin:12px 0 0 0">
+      <a href="figuras/Fig9_autocorrelacion_espacial.png" target="_blank">
+        <img src="figuras/Fig9_autocorrelacion_espacial.png" style="width:100%;border-radius:4px;display:block" alt="Diagnóstico autocorrelación espacial Moran I">
+      </a>
+      <figcaption style="font-size:11.5px;color:var(--muted);margin-top:6px"><b>Figura 3.</b> Diagnóstico de autocorrelación espacial sobre las 15 parcelas DwC-A. (A) Concordancia media con Moran I y p-valor. (B) Residual ordinal medio. (C) Variograma empírico ajustado a modelo esférico (rango ≈ 8 187 m, meseta 1.40, nugget nulo).</figcaption>
+    </figure></div>
 
   <div class="step i2" data-n="3"><h5>Anexo G — Sensibilidad a percentiles BA</h5>
     <div class="meta">4 esquemas: P25/P75, P33/P66 (informe), Komiyama 30/80, P40/P60</div>
@@ -748,7 +707,13 @@
   <div class="step i2" data-n="4"><h5>Anexo I — Area of Applicability (Meyer & Pebesma 2021)</h5>
     <div class="meta">Stack 18 bandas S2 dry + S1 wet 2023 sobre AOI 5 053 km²</div>
     <p><b>63.2% del AOI fuera del envoltorio multivariado</b> de entrenamiento (umbral DI = 0.123). Importancia agregada: SAR Sentinel-1 = 0.0% en las 4 bandas (VV, VH, VV-VH, VH/VV).</p>
-    <span class="tag bad">fusión óptico-SAR es efectivamente óptica</span></div>
+    <span class="tag bad">fusión óptico-SAR es efectivamente óptica</span>
+    <figure style="margin:12px 0 0 0">
+      <a href="figuras/Fig10_AoA_mask_2023.png" target="_blank">
+        <img src="figuras/Fig10_AoA_mask_2023.png" style="width:100%;border-radius:4px;display:block" alt="Máscara AoA 2023 sobre AOI CGSM">
+      </a>
+      <figcaption style="font-size:11.5px;color:var(--muted);margin-top:6px"><b>Figura 4.</b> Area of Applicability sobre el AOI CGSM, 2023. Verde: dentro del envoltorio multivariado de entrenamiento (2 347.8 km², 36.8 %). Rojo: extrapolación (4 038.9 km², 63.2 %). Etiquetas amarillas: estaciones CARICOMP. Umbral DI = 0.123 (CV k=5).</figcaption>
+    </figure></div>
 
   <div class="step i2" data-n="5"><h5>Anexo J — RF vs GPBoost con proceso gaussiano espacial</h5>
     <div class="meta">564 muestras 4 clases · validación sobre 15 parcelas DwC-A</div>
